@@ -13,7 +13,7 @@ function AppAdmin() {
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [todayDocId, setTodayDocId] = useState();
   const [data, setData] = useState();
-  const [body, setBody] = useState();
+  const [body, setBody] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -104,7 +104,13 @@ function AppAdmin() {
           onClick={() => setOpenModalEdit(true)}
         />
       )}
-      <Modal closable={false} width={250} open={openModalEdit} footer={null}>
+      <Modal
+        closable={false}
+        width={250}
+        open={openModalEdit}
+        footer={null}
+        onCancel={() => setOpenModalEdit(false)}
+      >
         <div
           style={{
             display: "flex",
