@@ -12,7 +12,6 @@ body {
 
 
 .app {
-  padding: 10px;
   border-radius: 8px;
 }
 
@@ -20,7 +19,7 @@ body {
   border-radius: 8px !important;
   overflow: hidden;
   width: 100%;
-  height: calc(100vh - 20px);
+  height: calc(100vh);
 }
 
 .header {
