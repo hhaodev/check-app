@@ -18,6 +18,7 @@ import image from "./assets/pn.png";
 import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 
 function AppAdmin() {
+  const { TextArea } = Input;
   const { userState } = useContext(AppContext);
   const [todayChecked, setTodayChecked] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -219,7 +220,8 @@ function AppAdmin() {
             gap: 20,
           }}
         >
-          <Input
+          <TextArea
+            autoSize={{ minRows: 3 }}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={`${
@@ -227,7 +229,7 @@ function AppAdmin() {
                 ? "lời nhắc nhở uống thuốc :))"
                 : "gửi tin nhắn cho người ấy :))"
             }`}
-          ></Input>
+          />
           <Button
             disabled={!Boolean(content)}
             onClick={() => handleSendMsgOrBody()}
@@ -249,9 +251,16 @@ function AppAdmin() {
             flexDirection: "column",
             alignItems: "center",
             gap: 20,
+            width: "100%",
           }}
         >
-          <div>{data?.msg}</div>
+          <div
+            style={{
+              width: "100%",
+            }}
+          >
+            {data?.msg}
+          </div>
 
           <Button onClick={() => handleOk()}>Oske nhoo !!</Button>
         </div>
@@ -270,18 +279,29 @@ function AppAdmin() {
             flexDirection: "column",
             alignItems: "center",
             gap: 20,
+            width: "100%",
           }}
         >
           {msgContent?.map((i, index) => {
-            return <div key={index}>{`"${i?.text}"`}</div>;
+            return (
+              <div
+                style={{
+                  width: "100%",
+                }}
+                key={index}
+              >{`"${i?.text}"`}</div>
+            );
           })}
 
-          <Input
+          <TextArea
+            autoSize={{ minRows: 3 }}
             value={contentReply}
             onChange={(e) => setContentReply(e.target.value)}
             placeholder="reply???"
-          ></Input>
-          <Button onClick={() => handleReplyMsg()}>Oske nhoo !!</Button>
+          />
+          <Button loading={isHandleReply} onClick={() => handleReplyMsg()}>
+            Oske nhoo !!
+          </Button>
         </div>
       </Modal>
     </div>

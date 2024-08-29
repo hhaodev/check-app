@@ -21,6 +21,7 @@ import image1 from "./assets/a1cfc369-1fcc-4bfe-b566-962ecec25168.png";
 import image2 from "./assets/20b98398-62fd-4cef-91a7-6004aa5b23d4.png";
 
 function AppStandard() {
+  const { TextArea } = Input;
   const { userState } = useContext(AppContext);
   const [todayChecked, setTodayChecked] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,6 +42,8 @@ function AppStandard() {
   const [isHandleReply, setIsHandlingReply] = useState(false);
   const [isHandleOk, setIsHandleOk] = useState(false);
   const [isCheckLater, setIsCheckLater] = useState(false);
+
+  const [isHandleSendMsg, setIsHandleSendMsg] = useState(false);
 
   const isVisible = usePageVisibility();
 
@@ -146,6 +149,7 @@ function AppStandard() {
   };
 
   const handleSendMsg = async () => {
+    setIsHandleSendMsg(true);
     if (!todayDocId) return;
 
     await addDoc(collection(db, "msg"), {
@@ -155,6 +159,7 @@ function AppStandard() {
     });
     setMsgSendContent("");
     setOpenModalSendMsg(false);
+    setIsHandleSendMsg(false);
   };
 
   return (
@@ -225,16 +230,26 @@ function AppStandard() {
             flexDirection: "column",
             alignItems: "center",
             gap: 20,
+            width: "100%",
           }}
         >
-          <div>{Boolean(data?.body) ? data?.body : `uống thuốc nèeee!!`}</div>
+          <div
+            style={{
+              width: "100%",
+            }}
+          >
+            {Boolean(data?.body) ? data?.body : `uống thuốc nèeee!!`}
+          </div>
 
-          <Input
+          <TextArea
+            autoSize={{ minRows: 3 }}
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="có gì nói hong, viết ở đây :))"
-          ></Input>
-          <Button onClick={() => handleOk()}>Ún òiiii !!</Button>
+          />
+          <Button loading={isHandleOk} onClick={() => handleOk()}>
+            Ún òiiii !!
+          </Button>
           <Button
             onClick={() => {
               setOpenModal(false);
@@ -259,18 +274,29 @@ function AppStandard() {
             flexDirection: "column",
             alignItems: "center",
             gap: 20,
+            width: "100%",
           }}
         >
           {msgContent?.map((i, index) => {
-            return <div key={index}>{`"${i?.text}"`}</div>;
+            return (
+              <div
+                style={{
+                  width: "100%",
+                }}
+                key={index}
+              >{`"${i?.text}"`}</div>
+            );
           })}
 
-          <Input
+          <TextArea
+            autoSize={{ minRows: 3 }}
             value={contentReply}
             onChange={(e) => setContentReply(e.target.value)}
             placeholder="reply???"
-          ></Input>
-          <Button onClick={() => handleReplyMsg()}>Oske nhoo !!</Button>
+          />
+          <Button loading={isHandleReply} onClick={() => handleReplyMsg()}>
+            Oske nhoo !!
+          </Button>
         </div>
       </Modal>
 
@@ -289,12 +315,14 @@ function AppStandard() {
             gap: 20,
           }}
         >
-          <Input
+          <TextArea
+            autoSize={{ minRows: 3 }}
             value={msgSendContent}
             onChange={(e) => setMsgSendContent(e.target.value)}
             placeholder={"gửi tin nhắn cho người ấy :))"}
-          ></Input>
+          />
           <Button
+            loading={isHandleSendMsg}
             disabled={!Boolean(msgSendContent)}
             onClick={() => handleSendMsg()}
           >
