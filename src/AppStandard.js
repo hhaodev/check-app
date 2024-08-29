@@ -125,6 +125,8 @@ function AppStandard() {
     } catch (error) {
       console.error("Error handling reply message:", error);
     } finally {
+      setMsgId([]);
+      setMsgContent([]);
       setOpenModalMsg(false);
       setIsHandlingReply(false);
     }
