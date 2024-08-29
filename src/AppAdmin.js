@@ -19,8 +19,7 @@ import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 
 function AppAdmin() {
   const { TextArea } = Input;
-  const { userState, tokenDevice } = useContext(AppContext);
-  console.log("🚀 ~ AppAdmin ~ userState:", userState);
+  const { userState } = useContext(AppContext);
   const [todayChecked, setTodayChecked] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
@@ -156,10 +155,6 @@ function AppAdmin() {
       <Layout className="layout">
         <HeaderApp />
         <Content className="content">
-          {tokenDevice && (
-            <TextArea autoSize={{ minRows: 7 }} value={tokenDevice} />
-          )}
-          {userState.permission && <div>`${userState.permission}`</div>}
           {!loading && (
             <>
               {todayChecked ? (

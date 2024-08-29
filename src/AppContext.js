@@ -80,13 +80,9 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     (async () => {
-      const { token, permission } = await generateToken();
-      if (token && permission) {
+      const token = await generateToken();
+      if (token) {
         setTokenDevice(token);
-        setUserState((prevState) => ({
-          ...prevState,
-          permission,
-        }));
       }
     })();
   }, []);
@@ -115,6 +111,7 @@ export const AppProvider = ({ children }) => {
   }, [tokenDevice, userState?.user]);
 
   onMessage(messaging, (payload) => {
+    console.log("🚀 ~ onMessage ~ payload:", payload);
     if (payload) {
       message.info(
         <>

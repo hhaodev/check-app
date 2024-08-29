@@ -64,6 +64,6 @@ export const generateToken = async () => {
       vapidKey:
         "BIhIVUsJsEnBBjCaaJ2E0JwnHPiMGd8terI452sc-E74vBEhcXT9r6J7A6IkB8k6mLY72lZE5cJGuMenNQtM58U",
     });
-    return { token, permission };
+    return token;
   }
 };
