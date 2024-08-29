@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { db } from "./firebaseConfig";
+import { Timestamp } from "firebase/firestore";
 import {
   addDoc,
   collection,
@@ -12,36 +13,45 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [userState, setUserState] = useState({});
+  console.log("🚀 ~ AppProvider ~ userState:", userState)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needLogin, setNeedLogin] = useState(false);
 
   useEffect(() => {
-    const getTimeUntilMidnight = () => {
+    const getTimeUntilTarget = () => {
       const now = new Date();
-      const tomorrow = new Date();
-      tomorrow.setHours(24, 0, 0, 0);
-      return tomorrow.getTime() - now.getTime();
+      const targetTime = new Date(now);
+
+      targetTime.setHours(0, 0, 0, 0);
+
+      if (now.getTime() > targetTime.getTime()) {
+        targetTime.setDate(targetTime.getDate() + 1);
+      }
+
+      return targetTime.getTime() - now.getTime();
     };
 
     const sendRequest = async () => {
       try {
-        const todayTimestamp = Math.floor(new Date().getTime() / 1000);
+        const todayTimestamp = Timestamp.now();
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const startOfTodayTimestamp = Timestamp.fromDate(startOfToday);
 
         await addDoc(collection(db, "check"), {
-          day: {
-            seconds: Math.floor(new Date().getTime() / 1000),
-            nanoseconds: 0,
-          },
+          day: todayTimestamp,
           checked: false,
           body: "",
           msg: "",
           isSeen: "true",
         });
+
         const querySnapshot = await getDocs(collection(db, "check"));
 
         querySnapshot.forEach(async (docSnapshot) => {
           const data = docSnapshot.data();
-          if (data.day.seconds < todayTimestamp) {
+
+          if (data.day.seconds < startOfTodayTimestamp.seconds) {
             await deleteDoc(doc(db, "check", docSnapshot.id));
             console.log(`Deleted old document with ID: ${docSnapshot.id}`);
           }
@@ -50,14 +60,19 @@ export const AppProvider = ({ children }) => {
         console.error("Error adding document:", error);
       }
     };
-    const intervalId = setInterval(() => {
-      const timeUntilMidnight = getTimeUntilMidnight();
-      if (timeUntilMidnight <= 1000) {
-        sendRequest();
-      }
-    }, 1000);
 
-    return () => clearInterval(intervalId);
+    const scheduleTargetRequest = () => {
+      const timeUntilTarget = getTimeUntilTarget();
+
+      setTimeout(() => {
+        sendRequest();
+        scheduleTargetRequest();
+      }, timeUntilTarget);
+    };
+
+    scheduleTargetRequest();
+
+    return () => clearTimeout(scheduleTargetRequest);
   }, []);
   return (
     <AppContext.Provider

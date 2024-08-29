@@ -82,7 +82,7 @@ const AuthWrap = () => {
           height: "100vh",
           backgroundColor: "#000",
         }}
-      ></div>
+      />
     );
   }
 };

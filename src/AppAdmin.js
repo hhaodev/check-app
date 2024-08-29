@@ -2,28 +2,43 @@ import { Button, FloatButton, Input, Layout, Modal } from "antd";
 import "./App.css";
 import { Content } from "antd/es/layout/layout";
 import { db } from "./firebaseConfig";
-import { useEffect, useState } from "react";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import HeaderApp from "./component/Header";
+import { MessageOutlined } from "@ant-design/icons";
+import { AppContext } from "./AppContext";
 
 function AppAdmin() {
+  const { userState } = useContext(AppContext);
   const [todayChecked, setTodayChecked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [todayDocId, setTodayDocId] = useState();
   const [data, setData] = useState();
-  const [body, setBody] = useState("");
+  const [content, setContent] = useState("");
+  const [modalType, setModalType] = useState();
+
+  //msg region
+  const [contentReply, setContentReply] = useState("");
+  const [msgId, setMsgId] = useState([]);
+  const [msgContent, setMsgContent] = useState([]);
+  const [openModalMsg, setOpenModalMsg] = useState(false);
+
+  const [isHandleReply, setIsHandlingReply] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
       try {
-        const querySnapshot = await getDocs(collection(db, "check"));
-
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
-        let foundTodayItem = false;
 
         querySnapshot.forEach((doc) => {
           const data = doc.data();
@@ -34,26 +49,41 @@ function AppAdmin() {
             setData(data);
             setTodayDocId(doc.id);
             setTodayChecked(data.checked);
-            foundTodayItem = true;
-            if (data?.msg && !data.isSeen) {
-              setOpenModal(true);
-            }
+
+            setOpenModal(data?.msg && !data.isSeen);
           }
         });
 
-        if (!foundTodayItem) {
-          setOpenModal(true);
-        }
-
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      } finally {
+        console.error("Error processing snapshot:", error);
         setLoading(false);
       }
-    })();
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!isHandleReply) {
+      const unsubscribe = onSnapshot(collection(db, "msg"), (querySnapshot) => {
+        try {
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.author !== userState.user.uid && data.isSeen === false) {
+              setMsgId((pre) => [...pre, doc.id]);
+              setMsgContent((pre) => [...pre, data]);
+              setOpenModalMsg(true);
+            }
+          });
+        } catch (error) {
+          console.error("Error processing snapshot:", error);
+        }
+      });
+
+      return () => unsubscribe();
+    }
+  }, [isHandleReply]);
 
   const handleOk = async () => {
     if (!todayDocId) return;
@@ -67,16 +97,48 @@ function AppAdmin() {
       console.error("Error updating document:", error);
     }
   };
-  const handleAddBody = async () => {
+  const handleSendMsgOrBody = async () => {
     if (!todayDocId) return;
 
-    try {
+    if (modalType === "editBody") {
       const itemDoc = doc(db, "check", todayDocId);
-      await updateDoc(itemDoc, { body: body });
+      await updateDoc(itemDoc, { body: content });
 
       setOpenModalEdit(false);
+    } else if (modalType === "sendMsg") {
+      await addDoc(collection(db, "msg"), {
+        author: userState.user.uid,
+        text: content,
+        isSeen: false,
+      });
+      setContent("");
+      setOpenModalEdit(false);
+    }
+  };
+
+  const handleReplyMsg = async () => {
+    setIsHandlingReply(true); // Bắt đầu xử lý
+
+    try {
+      for (const i of msgId) {
+        // const itemDoc = doc(db, "msg", i);
+        // await updateDoc(itemDoc, { isSeen: true });
+        await deleteDoc(doc(db, "msg", i)); // Nếu cần xóa
+      }
+
+      if (Boolean(contentReply)) {
+        await addDoc(collection(db, "msg"), {
+          author: userState.user.uid,
+          text: contentReply,
+          isSeen: false,
+        });
+        setContentReply("");
+      }
     } catch (error) {
-      console.error("Error updating document:", error);
+      console.error("Error handling reply message:", error);
+    } finally {
+      setOpenModalMsg(false);
+      setIsHandlingReply(false);
     }
   };
 
@@ -99,11 +161,24 @@ function AppAdmin() {
       {!todayChecked && !loading && (
         <FloatButton
           style={{
-            insetInlineEnd: 40,
+            insetInlineEnd: 120,
           }}
-          onClick={() => setOpenModalEdit(true)}
+          onClick={() => {
+            setModalType("editBody");
+            setOpenModalEdit(true);
+          }}
         />
       )}
+      <FloatButton
+        style={{
+          insetInlineEnd: 40,
+        }}
+        icon={<MessageOutlined />}
+        onClick={() => {
+          setModalType("sendMsg");
+          setOpenModalEdit(true);
+        }}
+      />
       <Modal
         closable={false}
         width={250}
@@ -120,10 +195,20 @@ function AppAdmin() {
           }}
         >
           <Input
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="lời nhắc nhở uống thuốc :))"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder={`${
+              modalType === "editBody"
+                ? "lời nhắc nhở uống thuốc :))"
+                : "gửi tin nhắn cho người ấy :))"
+            }`}
           ></Input>
-          <Button onClick={() => handleAddBody()}>Oske nhoo !!</Button>
+          <Button
+            disabled={!Boolean(content)}
+            onClick={() => handleSendMsgOrBody()}
+          >
+            Oske nhoo !!
+          </Button>
         </div>
       </Modal>
       <Modal
@@ -144,6 +229,34 @@ function AppAdmin() {
           <div>{data?.msg}</div>
 
           <Button onClick={() => handleOk()}>Oske nhoo !!</Button>
+        </div>
+      </Modal>
+      <Modal
+        closable={false}
+        width={250}
+        open={openModalMsg}
+        footer={null}
+        onCancel={() => handleReplyMsg()}
+        title="tin nhắn đến từ người ấy :))"
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 20,
+          }}
+        >
+          {msgContent?.map((i, index) => {
+            return <div key={index}>{`"${i?.text}"`}</div>;
+          })}
+
+          <Input
+            value={contentReply}
+            onChange={(e) => setContentReply(e.target.value)}
+            placeholder="reply???"
+          ></Input>
+          <Button onClick={() => handleReplyMsg()}>Oske nhoo !!</Button>
         </div>
       </Modal>
     </div>

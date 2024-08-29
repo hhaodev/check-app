@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
 import { Button, Form, Input } from "antd";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "./firebaseConfig";
+import { auth } from "./firebaseConfig";
 import { AppContext } from "./AppContext";
-import { doc, setDoc } from "firebase/firestore";
 
 const Login = () => {
   const { setUserState, setIsAuthenticated, setNeedLogin } =
