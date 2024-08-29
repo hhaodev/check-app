@@ -43,3 +43,7 @@ body {
 .ant-form-item-required {
   color: #fff !important;
 }
+
+.ant-input {
+  font-size: 16px;
+}
