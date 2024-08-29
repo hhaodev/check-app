@@ -66,7 +66,7 @@ const AuthWrap = () => {
     });
 
     return () => unsubscribe();
-  }, [setUserState]);
+  }, []);
 
   if (needLogin) {
     return <Login />;

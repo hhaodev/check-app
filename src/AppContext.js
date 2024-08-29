@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
-import { db } from "./firebaseConfig";
-import { Timestamp } from "firebase/firestore";
+import { db, messaging } from "./firebaseConfig";
+import { query, Timestamp, where } from "firebase/firestore";
 import {
   addDoc,
   collection,
@@ -8,6 +8,9 @@ import {
   doc,
   getDocs,
 } from "firebase/firestore";
+import { onMessage } from "firebase/messaging";
+import { message } from "antd";
+import { generateToken } from "./ultis";
 
 export const AppContext = createContext();
 
@@ -15,6 +18,7 @@ export const AppProvider = ({ children }) => {
   const [userState, setUserState] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needLogin, setNeedLogin] = useState(false);
+  const [tokenDevice, setTokenDevice] = useState();
 
   useEffect(() => {
     const getTimeUntilTarget = () => {
@@ -73,9 +77,53 @@ export const AppProvider = ({ children }) => {
 
     return () => clearTimeout(scheduleTargetRequest);
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const token = await generateToken();
+      if (token) {
+        setTokenDevice(token);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (tokenDevice && userState?.user) {
+        const q = query(
+          collection(db, "tokenDevice"),
+          where("uid", "==", userState.user.uid),
+          where("token", "==", tokenDevice)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          await addDoc(collection(db, "tokenDevice"), {
+            uid: userState.user.uid,
+            token: tokenDevice,
+          });
+        } else {
+          console.log("Token and UID already exist in the database.");
+        }
+      }
+    })();
+  }, [tokenDevice, userState?.user]);
+
+  onMessage(messaging, (payload) => {
+    if (payload) {
+      message.info(
+        <>
+          <div>{payload.notification.body}</div>
+        </>
+      );
+    }
+  });
+
   return (
     <AppContext.Provider
       value={{
+        tokenDevice,
         userState,
         setUserState,
         isAuthenticated,

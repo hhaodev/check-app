@@ -1,5 +1,5 @@
 import React from "react";
-import useNetworkStatus from "./ultis";
+import { useNetworkStatus } from "./ultis";
 
 const NetworkCheckComponent = ({ children }) => {
   const online = useNetworkStatus();

@@ -112,17 +112,15 @@ function AppAdmin() {
     if (modalType === "editBody") {
       const itemDoc = doc(db, "check", todayDocId);
       await updateDoc(itemDoc, { body: content });
-
-      setOpenModalEdit(false);
     } else if (modalType === "sendMsg") {
       await addDoc(collection(db, "msg"), {
         author: userState.user.uid,
         text: content,
         isSeen: false,
       });
-      setContent("");
-      setOpenModalEdit(false);
     }
+    setOpenModalEdit(false);
+    setContent("");
     setIsButtonLoading(false);
   };
 

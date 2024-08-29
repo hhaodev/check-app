@@ -1,4 +1,6 @@
+import { getToken } from "firebase/messaging";
 import { useEffect, useState } from "react";
+import { messaging } from "../firebaseConfig";
 
 export const isToday = (timestamp) => {
   const { seconds, nanoseconds } = timestamp;
@@ -55,4 +57,13 @@ export const useNetworkStatus = () => {
   return online;
 };
 
-export default useNetworkStatus;
+export const generateToken = async () => {
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    const token = await getToken(messaging, {
+      vapidKey:
+        "BIhIVUsJsEnBBjCaaJ2E0JwnHPiMGd8terI452sc-E74vBEhcXT9r6J7A6IkB8k6mLY72lZE5cJGuMenNQtM58U",
+    });
+    return token;
+  }
+};
