@@ -125,9 +125,7 @@ function AppStandard() {
 
     try {
       for (const i of msgId) {
-        // const itemDoc = doc(db, "msg", i);
-        // await updateDoc(itemDoc, { isSeen: true });
-        await deleteDoc(doc(db, "msg", i)); // Nếu cần xóa
+        await deleteDoc(doc(db, "msg", i));
       }
 
       if (Boolean(contentReply)) {
@@ -171,7 +169,7 @@ function AppStandard() {
             <>
               {result ? (
                 <>
-                  <div>{`uống òi hả, giỏi :))) thưởng 1 nháy !!`}</div>
+                  <div>{`uống òi hả, giỏi !! thưởng 1 nháy :)))`}</div>
                   <img
                     alt=""
                     src={image}

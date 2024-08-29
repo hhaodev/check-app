@@ -1,4 +1,4 @@
-import { Button, FloatButton, Input, Layout, Modal } from "antd";
+import { Button, FloatButton, Input, Layout, Modal, Skeleton } from "antd";
 import "./App.css";
 import { Content } from "antd/es/layout/layout";
 import { db } from "./firebaseConfig";
@@ -21,7 +21,6 @@ function AppAdmin() {
   const { TextArea } = Input;
   const { userState } = useContext(AppContext);
   const [todayChecked, setTodayChecked] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [todayDocId, setTodayDocId] = useState();
@@ -35,7 +34,10 @@ function AppAdmin() {
   const [msgContent, setMsgContent] = useState([]);
   const [openModalMsg, setOpenModalMsg] = useState(false);
 
+  //loading region
+  const [loading, setLoading] = useState(true);
   const [isHandleReply, setIsHandlingReply] = useState(false);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
@@ -88,6 +90,8 @@ function AppAdmin() {
   }, [isHandleReply]);
 
   const handleOk = async () => {
+    setIsButtonLoading(true);
+
     if (!todayDocId) return;
 
     try {
@@ -97,9 +101,12 @@ function AppAdmin() {
       setOpenModal(false);
     } catch (error) {
       console.error("Error updating document:", error);
+    } finally {
+      setIsButtonLoading(false);
     }
   };
   const handleSendMsgOrBody = async () => {
+    setIsButtonLoading(true);
     if (!todayDocId) return;
 
     if (modalType === "editBody") {
@@ -116,6 +123,7 @@ function AppAdmin() {
       setContent("");
       setOpenModalEdit(false);
     }
+    setIsButtonLoading(false);
   };
 
   const handleReplyMsg = async () => {
@@ -123,9 +131,7 @@ function AppAdmin() {
 
     try {
       for (const i of msgId) {
-        // const itemDoc = doc(db, "msg", i);
-        // await updateDoc(itemDoc, { isSeen: true });
-        await deleteDoc(doc(db, "msg", i)); // Nếu cần xóa
+        await deleteDoc(doc(db, "msg", i));
       }
 
       if (Boolean(contentReply)) {
@@ -210,7 +216,10 @@ function AppAdmin() {
         width={250}
         open={openModalEdit}
         footer={null}
-        onCancel={() => setOpenModalEdit(false)}
+        onCancel={() => {
+          setContent("");
+          setOpenModalEdit(false);
+        }}
       >
         <div
           style={{
@@ -231,6 +240,7 @@ function AppAdmin() {
             }`}
           />
           <Button
+            loading={isButtonLoading}
             disabled={!Boolean(content)}
             onClick={() => handleSendMsgOrBody()}
           >
@@ -262,7 +272,9 @@ function AppAdmin() {
             {data?.msg}
           </div>
 
-          <Button onClick={() => handleOk()}>Oske nhoo !!</Button>
+          <Button loading={isButtonLoading} onClick={() => handleOk()}>
+            Oske nhoo !!
+          </Button>
         </div>
       </Modal>
       <Modal
