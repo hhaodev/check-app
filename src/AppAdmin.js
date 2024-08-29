@@ -98,6 +98,14 @@ function AppAdmin() {
       const itemDoc = doc(db, "check", todayDocId);
       await updateDoc(itemDoc, { isSeen: true });
 
+      if (Boolean(contentReply)) {
+        await addDoc(collection(db, "msg"), {
+          author: userState.user.uid,
+          text: contentReply,
+          isSeen: false,
+        });
+        setContentReply("");
+      }
       setOpenModal(false);
     } catch (error) {
       console.error("Error updating document:", error);
@@ -252,6 +260,7 @@ function AppAdmin() {
         width={250}
         open={openModal}
         footer={null}
+        onCancel={() => handleOk()}
       >
         <div
           style={{
@@ -269,6 +278,12 @@ function AppAdmin() {
           >
             {data?.msg}
           </div>
+          <TextArea
+            autoSize={{ minRows: 3 }}
+            value={contentReply}
+            onChange={(e) => setContentReply(e.target.value)}
+            placeholder="reply???"
+          />
 
           <Button loading={isButtonLoading} onClick={() => handleOk()}>
             Oske nhoo !!
