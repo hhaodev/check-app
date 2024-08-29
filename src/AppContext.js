@@ -103,15 +103,13 @@ export const AppProvider = ({ children }) => {
             uid: userState.user.uid,
             token: tokenDevice,
           });
-        } else {
-          console.log("Token and UID already exist in the database.");
         }
       }
     })();
   }, [tokenDevice, userState?.user]);
 
   onMessage(messaging, (payload) => {
-    console.log("🚀 ~ onMessage ~ payload:", payload);
+    console.log("🚀 ~ onMessage ~ messaging:", payload);
     if (payload) {
       message.info(
         <>

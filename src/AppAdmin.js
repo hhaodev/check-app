@@ -72,14 +72,19 @@ function AppAdmin() {
     if (!isHandleReply) {
       const unsubscribe = onSnapshot(collection(db, "msg"), (querySnapshot) => {
         try {
+          const msgId = [];
+          const msgContent = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             if (data.author !== userState.user.uid && data.isSeen === false) {
-              setMsgId((pre) => [...pre, doc.id]);
-              setMsgContent((pre) => [...pre, data]);
+              msgId.push(doc.id);
+              msgContent.push(data);
               setOpenModalMsg(true);
             }
           });
+
+          setMsgId(msgId);
+          setMsgContent(msgContent);
         } catch (error) {
           console.error("Error processing snapshot:", error);
         }
