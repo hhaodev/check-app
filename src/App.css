@@ -47,3 +47,7 @@ body {
 .ant-input {
   font-size: 16px;
 }
+
+.ant-input-affix-wrapper {
+  font-size: 16px;
+}
