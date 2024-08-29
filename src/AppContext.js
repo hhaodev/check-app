@@ -80,9 +80,13 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     (async () => {
-      const token = await generateToken();
-      if (token) {
+      const { token, permission } = await generateToken();
+      if (token && permission) {
         setTokenDevice(token);
+        setUserState((prevState) => ({
+          ...prevState,
+          permission,
+        }));
       }
     })();
   }, []);
