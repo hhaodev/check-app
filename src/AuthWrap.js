@@ -6,6 +6,8 @@ import Login from "./Login";
 import { doc, getDoc } from "firebase/firestore";
 import AppStandard from "./AppStandard";
 import AppAdmin from "./AppAdmin";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const AuthWrap = () => {
   const {
@@ -81,8 +83,13 @@ const AuthWrap = () => {
           width: "100%",
           height: "100vh",
           backgroundColor: "#000",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
-      />
+      >
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+      </div>
     );
   }
 };

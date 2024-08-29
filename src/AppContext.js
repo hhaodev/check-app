@@ -13,7 +13,6 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [userState, setUserState] = useState({});
-  console.log("🚀 ~ AppProvider ~ userState:", userState)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needLogin, setNeedLogin] = useState(false);
 

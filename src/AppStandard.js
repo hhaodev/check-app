@@ -15,6 +15,10 @@ import {
 import HeaderApp from "./component/Header";
 import { AppContext } from "./AppContext";
 import { MessageOutlined } from "@ant-design/icons";
+import { usePageVisibility } from "./ultis";
+import image from "./assets/05293ae8-0358-40d5-8e77-6ffa74f2775a.png";
+import image1 from "./assets/a1cfc369-1fcc-4bfe-b566-962ecec25168.png";
+import image2 from "./assets/20b98398-62fd-4cef-91a7-6004aa5b23d4.png";
 
 function AppStandard() {
   const { userState } = useContext(AppContext);
@@ -35,6 +39,10 @@ function AppStandard() {
   const [msgSendContent, setMsgSendContent] = useState();
 
   const [isHandleReply, setIsHandlingReply] = useState(false);
+  const [isHandleOk, setIsHandleOk] = useState(false);
+  const [isCheckLater, setIsCheckLater] = useState(false);
+
+  const isVisible = usePageVisibility();
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
@@ -54,18 +62,21 @@ function AppStandard() {
             setOpenModal(!data.checked);
           }
         });
-
-        setLoading(false);
       } catch (error) {
         console.error("Error processing snapshot:", error);
-        setLoading(false);
       } finally {
         setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) {
+      setIsCheckLater(false);
+    }
+  }, [isVisible]);
 
   useEffect(() => {
     if (!isHandleReply) {
@@ -89,18 +100,20 @@ function AppStandard() {
   }, [isHandleReply]);
 
   const handleOk = async () => {
+    setIsHandleOk(true);
     if (!todayDocId) return;
 
     try {
       const itemDoc = doc(db, "check", todayDocId);
       await updateDoc(itemDoc, { checked: true, msg: text, isSeen: false });
 
-      setTodayChecked(true);
       setResult(true);
       setOpenModal(false);
       setText("");
     } catch (error) {
       console.error("Error updating document:", error);
+    } finally {
+      setIsHandleOk(false);
     }
   };
 
@@ -149,13 +162,49 @@ function AppStandard() {
       <Layout className="layout">
         <HeaderApp />
         <Content className="content">
-          {!loading && todayChecked && (
+          {!loading && todayChecked && !isHandleOk && (
             <>
               {result ? (
-                <div>{`uống òi hả, giỏi :))) thưởng 1 nháy !!`}</div>
+                <>
+                  <div>{`uống òi hả, giỏi :))) thưởng 1 nháy !!`}</div>
+                  <img
+                    alt=""
+                    src={image}
+                    style={{
+                      width: "80%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </>
               ) : (
-                <div>hôm nay em đã uống thuốc rồi</div>
+                <>
+                  <div>{`hôm ni em ún thuốc roàii !!`}</div>
+                  <img
+                    alt=""
+                    src={image2}
+                    style={{
+                      width: "80%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </>
               )}
+            </>
+          )}
+          {isCheckLater && (
+            <>
+              <div>{`nhớ 7h uống thuốc đó nghen :))`}</div>
+              <img
+                alt=""
+                src={image1}
+                style={{
+                  width: "80%",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                }}
+              />
             </>
           )}
         </Content>
@@ -185,7 +234,15 @@ function AppStandard() {
             onChange={(e) => setText(e.target.value)}
             placeholder="có gì nói hong, viết ở đây :))"
           ></Input>
-          <Button onClick={() => handleOk()}>Oske nhoo !!</Button>
+          <Button onClick={() => handleOk()}>Ún òiiii !!</Button>
+          <Button
+            onClick={() => {
+              setOpenModal(false);
+              setIsCheckLater(true);
+            }}
+          >
+            Chưa tới giờ, uống sau đê !!
+          </Button>
         </div>
       </Modal>
       <Modal

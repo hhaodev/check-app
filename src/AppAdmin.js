@@ -14,6 +14,8 @@ import {
 import HeaderApp from "./component/Header";
 import { MessageOutlined } from "@ant-design/icons";
 import { AppContext } from "./AppContext";
+import image from "./assets/pn.png";
+import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 
 function AppAdmin() {
   const { userState } = useContext(AppContext);
@@ -53,10 +55,9 @@ function AppAdmin() {
             setOpenModal(data?.msg && !data.isSeen);
           }
         });
-
-        setLoading(false);
       } catch (error) {
         console.error("Error processing snapshot:", error);
+      } finally {
         setLoading(false);
       }
     });
@@ -152,9 +153,31 @@ function AppAdmin() {
           {!loading && (
             <>
               {todayChecked ? (
-                <div>hôm nay em đã uống thuốc rồi</div>
+                <>
+                  <div>{`hôm nay em đã uống thuốc rồi :)))`}</div>
+                  <img
+                    alt=""
+                    src={image}
+                    style={{
+                      width: "80%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </>
               ) : (
-                <div>hôm nay em chưa uống thuốc</div>
+                <>
+                  <div>{`hôm nay em chưa uống thuốc !!!!`}</div>
+                  <img
+                    alt=""
+                    src={image2}
+                    style={{
+                      width: "80%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </>
               )}
             </>
           )}
