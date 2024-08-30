@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import { db, messaging } from "./firebaseConfig";
 import { query, Timestamp, where } from "firebase/firestore";
 import {
@@ -21,62 +21,56 @@ export const AppProvider = ({ children }) => {
   const [tokenDevice, setTokenDevice] = useState();
 
   useEffect(() => {
-    const getTimeUntilTarget = () => {
+    const scheduleNextRun = () => {
       const now = new Date();
-      const targetTime = new Date(now);
+      const nextRun = new Date();
 
-      targetTime.setHours(0, 0, 0, 0);
+      nextRun.setHours(0, 1, 0);
 
-      if (now.getTime() > targetTime.getTime()) {
-        targetTime.setDate(targetTime.getDate() + 1);
+      if (now > nextRun) {
+        nextRun.setDate(nextRun.getDate() + 1);
       }
 
-      return targetTime.getTime() - now.getTime();
-    };
+      const timeUntilNextRun = nextRun - now;
 
-    const sendRequest = async () => {
-      try {
-        const todayTimestamp = Timestamp.now();
-        const startOfToday = new Date();
-        startOfToday.setHours(0, 0, 0, 0);
-        const startOfTodayTimestamp = Timestamp.fromDate(startOfToday);
-
-        await addDoc(collection(db, "check"), {
-          day: todayTimestamp,
-          checked: false,
-          body: "",
-          msg: "",
-          isSeen: "true",
-        });
-
-        const querySnapshot = await getDocs(collection(db, "check"));
-
-        querySnapshot.forEach(async (docSnapshot) => {
-          const data = docSnapshot.data();
-
-          if (data.day.seconds < startOfTodayTimestamp.seconds) {
-            await deleteDoc(doc(db, "check", docSnapshot.id));
-            console.log(`Deleted old document with ID: ${docSnapshot.id}`);
-          }
-        });
-      } catch (error) {
-        console.error("Error adding document:", error);
-      }
-    };
-
-    const scheduleTargetRequest = () => {
-      const timeUntilTarget = getTimeUntilTarget();
-
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         sendRequest();
-        scheduleTargetRequest();
-      }, timeUntilTarget);
+        scheduleNextRun();
+      }, timeUntilNextRun);
+
+      return () => clearTimeout(timerId);
     };
 
-    scheduleTargetRequest();
-
-    return () => clearTimeout(scheduleTargetRequest);
+    scheduleNextRun();
   }, []);
+
+  const sendRequest = async () => {
+    try {
+      const now = new Date();
+      now.setHours(0, 0, 0);
+      const dayTimestamp = Timestamp.fromDate(now);
+
+      await addDoc(collection(db, "check"), {
+        day: dayTimestamp,
+        checked: false,
+        body: "",
+        msg: "",
+        isSeen: "true",
+      });
+
+      const querySnapshot = await getDocs(collection(db, "check"));
+
+      querySnapshot.forEach(async (docSnapshot) => {
+        const data = docSnapshot.data();
+
+        if (data.day.seconds < dayTimestamp.seconds) {
+          await deleteDoc(doc(db, "check", docSnapshot.id));
+        }
+      });
+    } catch (error) {
+      console.error("Error adding document:", error);
+    }
+  };
 
   useEffect(() => {
     (async () => {

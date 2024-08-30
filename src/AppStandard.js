@@ -19,6 +19,7 @@ import { usePageVisibility } from "./ultis";
 import image from "./assets/05293ae8-0358-40d5-8e77-6ffa74f2775a.png";
 import image1 from "./assets/a1cfc369-1fcc-4bfe-b566-962ecec25168.png";
 import image2 from "./assets/20b98398-62fd-4cef-91a7-6004aa5b23d4.png";
+import image3 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 
 function AppStandard() {
   const { TextArea } = Input;
@@ -45,6 +46,8 @@ function AppStandard() {
 
   const [isHandleSendMsg, setIsHandleSendMsg] = useState(false);
 
+  const [error, setError] = useState(false);
+
   const isVisible = usePageVisibility();
 
   useEffect(() => {
@@ -63,6 +66,10 @@ function AppStandard() {
             setTodayDocId(doc.id);
             setTodayChecked(data.checked);
             setOpenModal(!data.checked);
+            setError(false);
+          } else {
+            setOpenModal(false);
+            setError(true);
           }
         });
       } catch (error) {
@@ -170,7 +177,7 @@ function AppStandard() {
       <Layout className="layout">
         <HeaderApp />
         <Content className="content">
-          {!loading && todayChecked && !isHandleOk && (
+          {!loading && todayChecked && !isHandleOk && !error && (
             <>
               {result ? (
                 <>
@@ -201,12 +208,26 @@ function AppStandard() {
               )}
             </>
           )}
-          {isCheckLater && (
+          {isCheckLater && !error && (
             <>
               <div>{`nhớ 7h uống thuốc đó nghen :))`}</div>
               <img
                 alt=""
                 src={image1}
+                style={{
+                  width: "80%",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                }}
+              />
+            </>
+          )}
+          {error && (
+            <>
+              <div>{`có bug rồi thì phải, hú anh mau !!`}</div>
+              <img
+                alt=""
+                src={image3}
                 style={{
                   width: "80%",
                   objectFit: "contain",
@@ -245,6 +266,7 @@ function AppStandard() {
           </div>
 
           <TextArea
+            autoFocus
             autoSize={{ minRows: 3 }}
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -292,6 +314,7 @@ function AppStandard() {
           })}
 
           <TextArea
+            autoFocus
             autoSize={{ minRows: 3 }}
             value={contentReply}
             onChange={(e) => setContentReply(e.target.value)}
@@ -319,6 +342,7 @@ function AppStandard() {
           }}
         >
           <TextArea
+            autoFocus
             autoSize={{ minRows: 3 }}
             value={msgSendContent}
             onChange={(e) => setMsgSendContent(e.target.value)}

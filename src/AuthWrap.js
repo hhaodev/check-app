@@ -68,14 +68,12 @@ const AuthWrap = () => {
     return () => unsubscribe();
   }, []);
 
-  if (needLogin) {
-    return <Login />;
-  }
-
   if (userState.role === "admin" && isAuthenticated && !needLogin) {
     return <AppAdmin />;
   } else if (userState.role === "standard" && isAuthenticated && !needLogin) {
     return <AppStandard />;
+  } else if (needLogin) {
+    return <Login />;
   } else {
     return (
       <div

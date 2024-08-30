@@ -16,6 +16,7 @@ import { MessageOutlined } from "@ant-design/icons";
 import { AppContext } from "./AppContext";
 import image from "./assets/pn.png";
 import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
+import image1 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 
 function AppAdmin() {
   const { TextArea } = Input;
@@ -39,6 +40,8 @@ function AppAdmin() {
   const [isHandleReply, setIsHandlingReply] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
 
+  const [error, setError] = useState(false);
+
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
       try {
@@ -54,8 +57,10 @@ function AppAdmin() {
             setData(data);
             setTodayDocId(doc.id);
             setTodayChecked(data.checked);
-
             setOpenModal(data?.msg && !data.isSeen);
+            setError(false);
+          } else {
+            setError(true);
           }
         });
       } catch (error) {
@@ -168,7 +173,7 @@ function AppAdmin() {
       <Layout className="layout">
         <HeaderApp />
         <Content className="content">
-          {!loading && (
+          {!loading && !error && (
             <>
               {todayChecked ? (
                 <>
@@ -199,9 +204,23 @@ function AppAdmin() {
               )}
             </>
           )}
+          {error && (
+            <>
+              <div>{`có gì đó sai sai, check DB mau!!`}</div>
+              <img
+                alt=""
+                src={image1}
+                style={{
+                  width: "80%",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                }}
+              />
+            </>
+          )}
         </Content>
       </Layout>
-      {!todayChecked && !loading && (
+      {!todayChecked && !loading && !error && (
         <FloatButton
           style={{
             insetInlineEnd: 120,
@@ -241,6 +260,7 @@ function AppAdmin() {
           }}
         >
           <TextArea
+            autoFocus
             autoSize={{ minRows: 3 }}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -284,6 +304,7 @@ function AppAdmin() {
             {data?.msg}
           </div>
           <TextArea
+            autoFocus
             autoSize={{ minRows: 3 }}
             value={contentReply}
             onChange={(e) => setContentReply(e.target.value)}
@@ -324,6 +345,7 @@ function AppAdmin() {
           })}
 
           <TextArea
+            autoFocus
             autoSize={{ minRows: 3 }}
             value={contentReply}
             onChange={(e) => setContentReply(e.target.value)}
