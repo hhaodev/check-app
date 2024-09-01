@@ -1,7 +1,7 @@
 import React from "react";
 import { useNetworkStatus } from "./ultis";
 
-const NetworkCheckComponent = ({ children }) => {
+const NetworkProvider = ({ children }) => {
   const online = useNetworkStatus();
 
   if (!online) {
@@ -36,4 +36,4 @@ const NetworkCheckComponent = ({ children }) => {
   return <>{children}</>;
 };
 
-export default NetworkCheckComponent;
+export default NetworkProvider;

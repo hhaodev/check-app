@@ -1,31 +1,29 @@
-import { Button, FloatButton, Input, Layout, Modal, Skeleton } from "antd";
+import { Button, FloatButton, Input, Layout, Modal } from "antd";
 import "./App.css";
 import { Content } from "antd/es/layout/layout";
 import { db } from "./firebaseConfig";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   addDoc,
   collection,
   deleteDoc,
   doc,
   onSnapshot,
+  Timestamp,
   updateDoc,
 } from "firebase/firestore";
 import HeaderApp from "./component/Header";
 import { MessageOutlined } from "@ant-design/icons";
-import { AppContext } from "./AppContext";
+import { useAppContext } from "./context/AppContext";
 import image from "./assets/pn.png";
 import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 import image1 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
+import { formatTime } from "./ultis";
 
 function AppAdmin() {
   const { TextArea } = Input;
-  const { userState } = useContext(AppContext);
+  const { userState, todayDocId, setTodayDocId } = useAppContext();
   const [todayChecked, setTodayChecked] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [openModalEdit, setOpenModalEdit] = useState(false);
-  const [todayDocId, setTodayDocId] = useState();
-  const [data, setData] = useState();
   const [content, setContent] = useState("");
   const [modalType, setModalType] = useState();
 
@@ -54,10 +52,8 @@ function AppAdmin() {
           itemDate.setHours(0, 0, 0, 0);
 
           if (itemDate.getTime() === today.getTime()) {
-            setData(data);
             setTodayDocId(doc.id);
             setTodayChecked(data.checked);
-            setOpenModal(data?.msg && !data.isSeen);
             setError(false);
           } else {
             setError(true);
@@ -88,6 +84,10 @@ function AppAdmin() {
             }
           });
 
+          msgContent.sort((a, b) => {
+            return b.sendAt.seconds - a.sendAt.seconds;
+          });
+
           setMsgId(msgId);
           setMsgContent(msgContent);
         } catch (error) {
@@ -99,51 +99,28 @@ function AppAdmin() {
     }
   }, [isHandleReply]);
 
-  const handleOk = async () => {
-    setIsButtonLoading(true);
-
-    if (!todayDocId) return;
-
-    try {
-      const itemDoc = doc(db, "check", todayDocId);
-      await updateDoc(itemDoc, { isSeen: true });
-
-      if (Boolean(contentReply)) {
-        await addDoc(collection(db, "msg"), {
-          author: userState.user.uid,
-          text: contentReply,
-          isSeen: false,
-        });
-        setContentReply("");
-      }
-      setOpenModal(false);
-    } catch (error) {
-      console.error("Error updating document:", error);
-    } finally {
-      setIsButtonLoading(false);
-    }
-  };
-  const handleSendMsgOrBody = async () => {
+  const handleSendMsgOrTitle = async () => {
     setIsButtonLoading(true);
     if (!todayDocId) return;
 
-    if (modalType === "editBody") {
+    if (modalType === "editTitle") {
       const itemDoc = doc(db, "check", todayDocId);
-      await updateDoc(itemDoc, { body: content });
+      await updateDoc(itemDoc, { title: content });
     } else if (modalType === "sendMsg") {
       await addDoc(collection(db, "msg"), {
         author: userState.user.uid,
         text: content,
         isSeen: false,
+        sendAt: Timestamp.fromDate(new Date()),
       });
     }
-    setOpenModalEdit(false);
+    setModalType("");
     setContent("");
     setIsButtonLoading(false);
   };
 
   const handleReplyMsg = async () => {
-    setIsHandlingReply(true); // Bắt đầu xử lý
+    setIsHandlingReply(true);
 
     try {
       for (const i of msgId) {
@@ -155,6 +132,7 @@ function AppAdmin() {
           author: userState.user.uid,
           text: contentReply,
           isSeen: false,
+          sendAt: Timestamp.fromDate(new Date()),
         });
         setContentReply("");
       }
@@ -226,8 +204,7 @@ function AppAdmin() {
             insetInlineEnd: 120,
           }}
           onClick={() => {
-            setModalType("editBody");
-            setOpenModalEdit(true);
+            setModalType("editTitle");
           }}
         />
       )}
@@ -238,17 +215,17 @@ function AppAdmin() {
         icon={<MessageOutlined />}
         onClick={() => {
           setModalType("sendMsg");
-          setOpenModalEdit(true);
         }}
       />
       <Modal
+        style={{ top: "25%" }}
         closable={false}
-        width={250}
-        open={openModalEdit}
+        width={320}
+        open={modalType === "sendMsg" || modalType === "editTitle"}
         footer={null}
         onCancel={() => {
           setContent("");
-          setOpenModalEdit(false);
+          setModalType("");
         }}
       >
         <div
@@ -265,7 +242,7 @@ function AppAdmin() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={`${
-              modalType === "editBody"
+              modalType === "editTitle"
                 ? "lời nhắc nhở uống thuốc :))"
                 : "gửi tin nhắn cho người ấy :))"
             }`}
@@ -273,56 +250,25 @@ function AppAdmin() {
           <Button
             loading={isButtonLoading}
             disabled={!Boolean(content)}
-            onClick={() => handleSendMsgOrBody()}
+            onClick={() => handleSendMsgOrTitle()}
           >
             Oske nhoo !!
           </Button>
         </div>
       </Modal>
-      <Modal
-        title="tin nhắn đến từ người ấy :))"
-        closable={false}
-        width={250}
-        open={openModal}
-        footer={null}
-        onCancel={() => handleOk()}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 20,
-            width: "100%",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-            }}
-          >
-            {data?.msg}
-          </div>
-          <TextArea
-            autoFocus
-            autoSize={{ minRows: 3 }}
-            value={contentReply}
-            onChange={(e) => setContentReply(e.target.value)}
-            placeholder="reply???"
-          />
 
-          <Button loading={isButtonLoading} onClick={() => handleOk()}>
-            Oske nhoo !!
-          </Button>
-        </div>
-      </Modal>
       <Modal
+        style={{ top: "25%" }}
         closable={false}
-        width={250}
+        width={320}
         open={openModalMsg}
         footer={null}
         onCancel={() => handleReplyMsg()}
-        title="tin nhắn đến từ người ấy :))"
+        title={
+          <div
+            style={{ textAlign: "center" }}
+          >{`tin nhắn từ người ấy :))`}</div>
+        }
       >
         <div
           style={{
@@ -338,9 +284,25 @@ function AppAdmin() {
               <div
                 style={{
                   width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
                 key={index}
-              >{`"${i?.text}"`}</div>
+              >
+                {`"${i?.text}" `}
+                <div
+                  style={{
+                    fontSize: 11,
+                    whiteSpace: "nowrap",
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignContent: "flex-end",
+                  }}
+                >
+                  {`${formatTime(i?.sendAt)}`}
+                </div>
+              </div>
             );
           })}
 

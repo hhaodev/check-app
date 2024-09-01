@@ -1,12 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Button, Form, Input } from "antd";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebaseConfig";
-import { AppContext } from "./AppContext";
+import { useAppContext } from "./context/AppContext";
 
 const Login = () => {
-  const { setUserState, setIsAuthenticated, setNeedLogin } =
-    useContext(AppContext);
+  const { setUserState, setIsAuthenticated, setNeedLogin } = useAppContext();
 
   const onFinish = async (values) => {
     try {

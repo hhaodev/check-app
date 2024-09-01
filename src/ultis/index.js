@@ -2,22 +2,19 @@ import { getToken } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import { messaging } from "../firebaseConfig";
 
-export const isToday = (timestamp) => {
-  const { seconds, nanoseconds } = timestamp;
+export const formatTime = (timestamp) => {
+  const date = new Date(timestamp.seconds * 1000);
 
-  const millis = seconds * 1000 + nanoseconds / 1000000;
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
 
-  const dateFromTimestamp = new Date(millis);
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12;
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
 
-  const today = new Date();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const endOfToday = new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000);
-
-  return dateFromTimestamp >= startOfToday && dateFromTimestamp < endOfToday;
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
 };
 
 export const usePageVisibility = () => {

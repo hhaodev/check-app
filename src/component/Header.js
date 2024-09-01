@@ -1,12 +1,12 @@
 import { Avatar, Dropdown } from "antd";
-import React, { useContext } from "react";
-import { AppContext } from "../AppContext";
+import React from "react";
+import { useAppContext } from "../context/AppContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { Header } from "antd/es/layout/layout";
 
 const HeaderApp = () => {
-  const { userState, setUserState } = useContext(AppContext);
+  const { userState, setUserState } = useAppContext();
   const items = [
     {
       label: <div onClick={() => handleSignOut()}>Sign Out</div>,

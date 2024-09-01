@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from "react";
-import { AppContext } from "./AppContext";
+import React, { useEffect } from "react";
+import { useAppContext } from "./context/AppContext";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebaseConfig";
 import Login from "./Login";
@@ -9,7 +9,7 @@ import AppAdmin from "./AppAdmin";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 
-const AuthWrap = () => {
+const App = () => {
   const {
     userState,
     setUserState,
@@ -17,7 +17,7 @@ const AuthWrap = () => {
     setNeedLogin,
     isAuthenticated,
     setIsAuthenticated,
-  } = useContext(AppContext);
+  } = useAppContext();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -92,4 +92,4 @@ const AuthWrap = () => {
   }
 };
 
-export default AuthWrap;
+export default App;
