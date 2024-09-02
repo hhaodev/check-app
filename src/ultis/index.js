@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { messaging } from "../firebaseConfig";
 
 export const formatTime = (timestamp) => {
-  const date = new Date(timestamp.seconds * 1000);
+  const date = new Date(timestamp?.seconds * 1000);
+
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
 
   const hours = date.getHours();
   const minutes = date.getMinutes();
@@ -14,7 +18,7 @@ export const formatTime = (timestamp) => {
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
   const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
 
-  return `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
+  return `${day}/${month}/${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
 };
 
 export const usePageVisibility = () => {
@@ -63,4 +67,33 @@ export const generateToken = async () => {
     });
     return token;
   }
+};
+
+export const filterNotes = (notes, paramsFilter) => {
+  return notes.filter((note) => {
+    // Lọc theo level
+    if (paramsFilter.level !== "all" && note.level !== paramsFilter.level) {
+      return false;
+    }
+
+    // Lọc theo noteTo
+    if (
+      paramsFilter.noteTo !== "all" &&
+      note.noteTo.uid !== paramsFilter.noteTo
+    ) {
+      return false;
+    }
+
+    // Lọc theo owner
+    if (paramsFilter.owner !== "all" && note.owner.uid !== paramsFilter.owner) {
+      return false;
+    }
+
+    // Lọc theo done
+    if (paramsFilter.done !== "all" && note.done !== paramsFilter.done) {
+      return false;
+    }
+
+    return true;
+  });
 };

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { db, messaging } from "../firebaseConfig";
-import { Timestamp, updateDoc } from "firebase/firestore";
+import { getDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
 import { onMessage } from "firebase/messaging";
 import { message } from "antd";
@@ -25,31 +25,31 @@ export const AppProvider = ({ children }) => {
       const currentMinutes = now.getMinutes();
       const currentSeconds = now.getSeconds();
 
-      if (currentHours === 0 && currentMinutes === 0 && currentSeconds === 0) {
-        console.log("It's past 23:59:59. Doing the action...");
-        await sendRequest();
+      if (currentHours === 0 && currentMinutes === 0 && currentSeconds === 1) {
+        sendRequest();
       }
     };
 
     const intervalId = setInterval(dailyTask, 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [todayDocId]);
 
   const sendRequest = async () => {
-    try {
-      const now = new Date();
-      now.setHours(0, 0, 0);
-      const todayTimestamp = Timestamp.fromDate(now);
+    if (!todayDocId) return;
 
+    try {
       const itemDoc = doc(db, "check", todayDocId);
+
+      const todayTimestamp = Timestamp.fromDate(new Date().setHours(0, 0, 0));
+
       await updateDoc(itemDoc, {
         day: todayTimestamp,
         checked: false,
         title: "",
       });
     } catch (error) {
-      console.error("Error adding document:", error);
+      console.error("Error updating document:", error);
     }
   };
 

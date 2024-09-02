@@ -15,7 +15,7 @@ body {
 .layout {
   overflow: hidden;
   width: 100%;
-  height: calc(100vh);
+  height: calc(100vh - 100px);
 }
 
 .header {
@@ -50,4 +50,8 @@ body {
 
 .ant-input-affix-wrapper {
   font-size: 16px;
+}
+
+.ant-drawer-content-wrapper {
+  width: 100% !important;
 }
