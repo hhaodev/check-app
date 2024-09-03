@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { db, messaging } from "../firebaseConfig";
-import { getDoc, Timestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  getDoc,
+  getDocs,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { doc } from "firebase/firestore";
 import { onMessage } from "firebase/messaging";
 import { message } from "antd";
@@ -18,40 +24,37 @@ export const AppProvider = ({ children }) => {
 
   const [todayDocId, setTodayDocId] = useState();
 
+  const [appLoading, setAppLoading] = useState(true);
+
   useEffect(() => {
-    const dailyTask = async () => {
-      const now = new Date();
-      const currentHours = now.getHours();
-      const currentMinutes = now.getMinutes();
-      const currentSeconds = now.getSeconds();
+    (async () => {
+      try {
+        const now = new Date();
+        now.setHours(0, 0, 0);
+        const todayTimestamp = Timestamp.fromDate(now);
 
-      if (currentHours === 0 && currentMinutes === 0 && currentSeconds === 1) {
-        sendRequest();
+        const checksCollection = collection(db, "check");
+        const snapshot = await getDocs(checksCollection);
+
+        snapshot.forEach(async (docSnapshot) => {
+          const data = docSnapshot.data();
+          const docId = docSnapshot.id;
+
+          if (data.day?.seconds !== todayTimestamp.seconds) {
+            const docRef = doc(db, "check", docId);
+            await updateDoc(docRef, {
+              day: todayTimestamp,
+              checked: false,
+              title: "",
+            });
+          }
+          setAppLoading(false);
+        });
+      } catch (error) {
+        console.error("Error updating documents:", error);
       }
-    };
-
-    const intervalId = setInterval(dailyTask, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [todayDocId]);
-
-  const sendRequest = async () => {
-    if (!todayDocId) return;
-
-    try {
-      const itemDoc = doc(db, "check", todayDocId);
-
-      const todayTimestamp = Timestamp.fromDate(new Date().setHours(0, 0, 0));
-
-      await updateDoc(itemDoc, {
-        day: todayTimestamp,
-        checked: false,
-        title: "",
-      });
-    } catch (error) {
-      console.error("Error updating document:", error);
-    }
-  };
+    })();
+  }, []);
 
   onMessage(messaging, (payload) => {
     console.log("🚀 ~ onMessage ~ messaging:", payload);
@@ -67,6 +70,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        appLoading,
         userState,
         setUserState,
         isAuthenticated,

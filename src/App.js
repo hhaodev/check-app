@@ -11,6 +11,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 
 const App = () => {
   const {
+    appLoading,
     userState,
     setUserState,
     needLogin,
@@ -68,11 +69,21 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  if (userState.role === "admin" && isAuthenticated && !needLogin) {
+  if (
+    userState.role === "admin" &&
+    isAuthenticated &&
+    !needLogin &&
+    !appLoading
+  ) {
     return <AppAdmin />;
-  } else if (userState.role === "standard" && isAuthenticated && !needLogin) {
+  } else if (
+    userState.role === "standard" &&
+    isAuthenticated &&
+    !needLogin &&
+    !appLoading
+  ) {
     return <AppStandard />;
-  } else if (needLogin) {
+  } else if (needLogin && !appLoading) {
     return <Login />;
   } else {
     return (

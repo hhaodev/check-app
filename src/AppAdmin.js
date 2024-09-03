@@ -474,7 +474,7 @@ function AppAdmin() {
             )}
             {error && (
               <>
-                <div>{`có gì đó sai sai, check DB mau!!`}</div>
+                <div>{`có gì đó sai sai, tải lại trang xem !!`}</div>
                 <img
                   alt=""
                   src={image1}

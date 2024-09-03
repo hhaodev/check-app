@@ -519,7 +519,7 @@ function AppStandard() {
             )}
             {error && (
               <>
-                <div>{`có bug rồi thì phải, hú anh mau !!`}</div>
+                <div>{`có gì đó sai sai, tải lại trang xem !!`}</div>
                 <img
                   alt=""
                   src={image3}
@@ -829,9 +829,7 @@ function AppStandard() {
                 </div>
                 <p style={{ fontSize: 10 }}>Tạo: {formatTime(i?.createAt)}</p>
                 {Boolean(i.doneAt) && (
-                  <p style={{ fontSize: 10 }}>
-                    Xong: {formatTime(i?.doneAt)}
-                  </p>
+                  <p style={{ fontSize: 10 }}>Xong: {formatTime(i?.doneAt)}</p>
                 )}
               </Card>
             );
