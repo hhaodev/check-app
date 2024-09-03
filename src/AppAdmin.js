@@ -750,13 +750,9 @@ function AppAdmin() {
                 >
                   {i.description}
                 </div>
-                <p style={{ fontSize: 10 }}>
-                  Đã tạo lúc {formatTime(i?.createAt)}
-                </p>
+                <p style={{ fontSize: 10 }}>Tạo: {formatTime(i?.createAt)}</p>
                 {Boolean(i.doneAt) && (
-                  <p style={{ fontSize: 10 }}>
-                    Đã xong lúc {formatTime(i?.doneAt)}
-                  </p>
+                  <p style={{ fontSize: 10 }}>Xong: {formatTime(i?.doneAt)}</p>
                 )}
               </Card>
             );

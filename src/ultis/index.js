@@ -11,14 +11,24 @@ export const formatTime = (timestamp) => {
 
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
 
   const ampm = hours >= 12 ? "PM" : "AM";
   const formattedHours = hours % 12 || 12;
+  const formattedH =
+    formattedHours < 10 ? `0${formattedHours}` : formattedHours;
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
 
-  return `${day}/${month}/${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
+  const today = new Date();
+  const isToday =
+    day === today.getDate() &&
+    month === today.getMonth() + 1 &&
+    year === today.getFullYear();
+
+  if (isToday) {
+    return `Hôm nay lúc ${formattedH}:${formattedMinutes} ${ampm}`;
+  } else {
+    return `${day}/${month}/${year} ${formattedH}:${formattedMinutes} ${ampm}`;
+  }
 };
 
 export const usePageVisibility = () => {
