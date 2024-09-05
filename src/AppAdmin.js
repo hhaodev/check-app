@@ -41,7 +41,9 @@ import { filterNotes, formatTime } from "./ultis";
 
 function AppAdmin() {
   const { TextArea } = Input;
-  const { userState, todayDocId, setTodayDocId } = useAppContext();
+  const { userState } = useAppContext();
+
+  const [todayDocId, setTodayDocId] = useState();
   const [todayChecked, setTodayChecked] = useState(false);
   const [content, setContent] = useState("");
   const [modalType, setModalType] = useState();
@@ -58,6 +60,7 @@ function AppAdmin() {
   const [isHandleReply, setIsHandlingReply] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
 
+  //error region
   const [error, setError] = useState(false);
 
   //panel region
@@ -74,7 +77,7 @@ function AppAdmin() {
   const [descriptionNote, setDescriptionNote] = useState("");
   const [errorMessage, setErrorMessage] = useState(false);
 
-  //filerpanel region
+  //filter panel region
   const [openFilterPanel, setOpenFilterPanel] = useState(false);
   const [paramsFilter, setParamsFilter] = useState({
     level: "all",

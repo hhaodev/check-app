@@ -36,8 +36,12 @@ import image2 from "./assets/20b98398-62fd-4cef-91a7-6004aa5b23d4.png";
 import image3 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 
 function AppStandard() {
+  const isVisible = usePageVisibility();
+
   const { TextArea } = Input;
-  const { userState, todayDocId, setTodayDocId } = useAppContext();
+  const { userState } = useAppContext();
+
+  const [todayDocId, setTodayDocId] = useState();
   const [todayChecked, setTodayChecked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
@@ -53,15 +57,14 @@ function AppStandard() {
   const [openModalSendMsg, setOpenModalSendMsg] = useState(false);
   const [msgSendContent, setMsgSendContent] = useState();
 
+  //loading region
   const [isHandleReply, setIsHandlingReply] = useState(false);
   const [isHandleOk, setIsHandleOk] = useState(false);
   const [isCheckLater, setIsCheckLater] = useState(false);
-
   const [isHandleSendMsg, setIsHandleSendMsg] = useState(false);
 
+  //error region
   const [error, setError] = useState(false);
-
-  const isVisible = usePageVisibility();
 
   //panel region
   const [openPanel, setOpenPanel] = useState(false);
@@ -77,7 +80,7 @@ function AppStandard() {
   const [descriptionNote, setDescriptionNote] = useState("");
   const [errorMessage, setErrorMessage] = useState(false);
 
-  //filerpanel region
+  //filter panel region
   const [openFilterPanel, setOpenFilterPanel] = useState(false);
   const [paramsFilter, setParamsFilter] = useState({
     level: "all",
