@@ -8,12 +8,12 @@ import { getMessaging } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDqODf5TIzCqTPNcarXWfoMkfxjTd32E7c",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "check-app-65a52.firebaseapp.com",
   projectId: "check-app-65a52",
   storageBucket: "check-app-65a52.appspot.com",
   messagingSenderId: "150962778943",
-  appId: "1:150962778943:web:cb8e4e59aed94866f1d98a",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
