@@ -889,7 +889,7 @@ function AppStandard() {
               gap: 20,
             }}
           >
-            <div>Mức độ nghiêm trọng</div>
+            <div>Độ ưu tiên</div>
             <div>
               <Select
                 defaultValue={paramsFilterClone?.level}
@@ -1017,7 +1017,7 @@ function AppStandard() {
               gap: 20,
             }}
           >
-            <div>Mức độ nghiêm trọng</div>
+            <div>Độ ưu tiên</div>
             <div>
               <Select
                 defaultValue={level}
