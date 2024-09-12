@@ -2,7 +2,6 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
   Drawer,
   Input,
   Layout,
@@ -10,6 +9,7 @@ import {
   Modal,
   Select,
   Space,
+  Spin,
   Tag,
 } from "antd";
 import "./App.css";
@@ -28,7 +28,11 @@ import {
 } from "firebase/firestore";
 import HeaderApp from "./component/Header";
 import { useAppContext } from "./context/AppContext";
-import { CarryOutOutlined, MessageOutlined } from "@ant-design/icons";
+import {
+  CarryOutOutlined,
+  LoadingOutlined,
+  MessageOutlined,
+} from "@ant-design/icons";
 import { filterNotes, formatTime, usePageVisibility } from "./ultis";
 import image from "./assets/05293ae8-0358-40d5-8e77-6ffa74f2775a.png";
 import image1 from "./assets/a1cfc369-1fcc-4bfe-b566-962ecec25168.png";
@@ -475,6 +479,22 @@ function AppStandard() {
         <Layout className="layout">
           <HeaderApp />
           <Content className="content">
+            {loading && (
+              <div
+                style={{
+                  width: "100%",
+                  height: "100vh",
+                  backgroundColor: "#000",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Spin
+                  indicator={<LoadingOutlined style={{ fontSize: 30 }} spin />}
+                />
+              </div>
+            )}
             {!loading && todayChecked && !isHandleOk && !error && (
               <>
                 {result ? (

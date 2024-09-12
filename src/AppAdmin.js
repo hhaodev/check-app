@@ -2,21 +2,20 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
   Drawer,
-  Form,
   Input,
   Layout,
   message,
   Modal,
   Select,
   Space,
+  Spin,
   Tag,
 } from "antd";
 import "./App.css";
 import { Content } from "antd/es/layout/layout";
 import { db } from "./firebaseConfig";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   addDoc,
   collection,
@@ -31,6 +30,7 @@ import HeaderApp from "./component/Header";
 import {
   CarryOutOutlined,
   FormOutlined,
+  LoadingOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
 import { useAppContext } from "./context/AppContext";
@@ -443,53 +443,71 @@ function AppAdmin() {
       <div className="app">
         <Layout className="layout">
           <HeaderApp />
-          <Content className="content">
-            {!loading && !error && (
-              <>
-                {todayChecked ? (
-                  <>
-                    <div>{`hôm nay em đã uống thuốc rồi :)))`}</div>
-                    <img
-                      alt=""
-                      src={image}
-                      style={{
-                        width: "80%",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <div>{`hôm nay em chưa uống thuốc !!!!`}</div>
-                    <img
-                      alt=""
-                      src={image2}
-                      style={{
-                        width: "80%",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  </>
-                )}
-              </>
-            )}
-            {error && (
-              <>
-                <div>{`có gì đó sai sai, tải lại trang xem !!`}</div>
-                <img
-                  alt=""
-                  src={image1}
-                  style={{
-                    width: "80%",
-                    objectFit: "contain",
-                    borderRadius: "8px",
-                  }}
-                />
-              </>
-            )}
-          </Content>
+          {loading && (
+            <div
+              style={{
+                width: "100%",
+                height: "100vh",
+                backgroundColor: "#000",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Spin
+                indicator={<LoadingOutlined style={{ fontSize: 30 }} spin />}
+              />
+            </div>
+          )}
+          {!loading && (
+            <Content className="content">
+              {!loading && !error && (
+                <>
+                  {todayChecked ? (
+                    <>
+                      <div>{`hôm nay em đã uống thuốc rồi :)))`}</div>
+                      <img
+                        alt=""
+                        src={image}
+                        style={{
+                          width: "80%",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div>{`hôm nay em chưa uống thuốc !!!!`}</div>
+                      <img
+                        alt=""
+                        src={image2}
+                        style={{
+                          width: "80%",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+              {error && (
+                <>
+                  <div>{`có gì đó sai sai, tải lại trang xem !!`}</div>
+                  <img
+                    alt=""
+                    src={image1}
+                    style={{
+                      width: "80%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </>
+              )}
+            </Content>
+          )}
         </Layout>
         <div
           style={{
