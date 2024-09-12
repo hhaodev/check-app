@@ -4,6 +4,7 @@ import { useAppContext } from "../context/AppContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { Header } from "antd/es/layout/layout";
+import logo from "../assets/logo.png";
 
 const HeaderApp = () => {
   const { userState, setUserState } = useAppContext();
@@ -29,12 +30,30 @@ const HeaderApp = () => {
   };
   return (
     <Header className="header">
-      <span>hi, {userState.user.email.split("@")[0]}</span>
-      <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
-        <Avatar style={{ backgroundColor: "#fde3cf", color: "#f56a00" }}>
-          {userState.user.email.split("@")[0].charAt(0).toUpperCase()}
-        </Avatar>
-      </Dropdown>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          width: "30%",
+        }}
+      >
+        <img
+          src={logo}
+          style={{
+            width: "100%",
+            objectFit: "contain",
+          }}
+          alt="logo"
+        />
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <span>hi, {userState.user.email.split("@")[0]}</span>
+        <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
+          <Avatar style={{ backgroundColor: "#fde3cf", color: "#f56a00" }}>
+            {userState.user.email.split("@")[0].charAt(0).toUpperCase()}
+          </Avatar>
+        </Dropdown>
+      </div>
     </Header>
   );
 };
