@@ -270,11 +270,7 @@ function AppStandard() {
                     <img
                       alt=""
                       src={image2}
-                      style={{
-                        width: "80%",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                      }}
+                      style={styleImage}
                     />
                   </>
                 )}
