@@ -43,17 +43,11 @@ const Login = () => {
         justifyContent: "center",
         backgroundColor: theme.colorBackgroundBase,
         color: theme.colorTextBase,
+        gap: 20,
       }}
     >
       <div style={{ fontSize: 30, fontWeight: 700 }}>Đăng nhập</div>
-      <Form
-        style={{
-          color: "white !important",
-          width: "70%",
-        }}
-        onFinish={onFinish}
-        autoComplete="off"
-      >
+      <Form layout="vertical" onFinish={onFinish} autoComplete="off">
         <Form.Item
           label="Email"
           name="email"

@@ -40,6 +40,13 @@ import image1 from "./assets/a1cfc369-1fcc-4bfe-b566-962ecec25168.png";
 import image2 from "./assets/20b98398-62fd-4cef-91a7-6004aa5b23d4.png";
 import image3 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 
+const styleImage = {
+  width: "80%",
+  maxWidth: "450px",
+  objectFit: "contain",
+  borderRadius: "8px",
+};
+
 function AppStandard() {
   const theme = useCustomTheme();
   const isVisible = usePageVisibility();
@@ -506,15 +513,7 @@ function AppStandard() {
                 {result ? (
                   <>
                     <div>{`uống òi hả, giỏi !! thưởng 1 nháy :)))`}</div>
-                    <img
-                      alt=""
-                      src={image}
-                      style={{
-                        width: "80%",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                      }}
-                    />
+                    <img alt="" src={image} style={styleImage} />
                   </>
                 ) : (
                   <>
@@ -535,29 +534,13 @@ function AppStandard() {
             {isCheckLater && !error && (
               <>
                 <div>{`nhớ 7h uống thuốc đó nghen :))`}</div>
-                <img
-                  alt=""
-                  src={image1}
-                  style={{
-                    width: "80%",
-                    objectFit: "contain",
-                    borderRadius: "8px",
-                  }}
-                />
+                <img alt="" src={image1} style={styleImage} />
               </>
             )}
             {error && (
               <>
                 <div>{`có gì đó sai sai, tải lại trang xem !!`}</div>
-                <img
-                  alt=""
-                  src={image3}
-                  style={{
-                    width: "80%",
-                    objectFit: "contain",
-                    borderRadius: "8px",
-                  }}
-                />
+                <img alt="" src={image3} style={styleImage} />
               </>
             )}
           </Content>

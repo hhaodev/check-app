@@ -64,6 +64,7 @@ const HeaderApp = () => {
           display: "flex",
           alignItems: "center",
           width: "30%",
+          maxWidth: "150px",
         }}
       >
         <img

@@ -40,6 +40,13 @@ import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 import image1 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 import { filterNotes, formatTime } from "./ultis";
 
+const styleImage = {
+  width: "80%",
+  maxWidth: "450px",
+  objectFit: "contain",
+  borderRadius: "8px",
+};
+
 function AppAdmin() {
   const theme = useCustomTheme();
   const { TextArea } = Input;
@@ -472,28 +479,12 @@ function AppAdmin() {
                   {todayChecked ? (
                     <>
                       <div>{`hôm nay em đã uống thuốc rồi :)))`}</div>
-                      <img
-                        alt=""
-                        src={image}
-                        style={{
-                          width: "80%",
-                          objectFit: "contain",
-                          borderRadius: "8px",
-                        }}
-                      />
+                      <img alt="" src={image} style={styleImage} />
                     </>
                   ) : (
                     <>
                       <div>{`hôm nay em chưa uống thuốc !!!!`}</div>
-                      <img
-                        alt=""
-                        src={image2}
-                        style={{
-                          width: "80%",
-                          objectFit: "contain",
-                          borderRadius: "8px",
-                        }}
-                      />
+                      <img alt="" src={image2} style={styleImage} />
                     </>
                   )}
                 </>
@@ -501,15 +492,7 @@ function AppAdmin() {
               {error && (
                 <>
                   <div>{`có gì đó sai sai, tải lại trang xem !!`}</div>
-                  <img
-                    alt=""
-                    src={image1}
-                    style={{
-                      width: "80%",
-                      objectFit: "contain",
-                      borderRadius: "8px",
-                    }}
-                  />
+                  <img alt="" src={image1} style={styleImage} />
                 </>
               )}
             </Content>
