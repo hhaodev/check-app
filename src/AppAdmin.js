@@ -265,7 +265,7 @@ function AppAdmin() {
               borderRadius: 50,
             }}
             icon={
-              !todayChecked && !loading && !error ? (
+              !loading ? (
                 <FormOutlined />
               ) : (
                 <Spin
