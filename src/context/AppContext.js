@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { db, messaging } from "../firebaseConfig";
 import { collection, getDocs, Timestamp, updateDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
@@ -29,14 +35,16 @@ export const AppProvider = ({ children }) => {
 
   const [appLoading, setAppLoading] = useState(true);
 
-  const [appTheme, setAppTheme] = useState(getInitialTheme);
+  const [appTheme, setAppTheme] = useState(getInitialTheme); // default dark mode
 
   const toggleAppTheme = () => {
-    setAppTheme(appTheme === "light" ? "dark" : "light");
+    const targetTheme = appTheme === "light" ? "dark" : "light";
+    setAppTheme(targetTheme);
+    localStorage.setItem("theme", targetTheme);
   };
 
-  useEffect(() => {
-    localStorage.setItem("theme", appTheme);
+  const isDarkMode = useMemo(() => {
+    return appTheme === "dark";
   }, [appTheme]);
 
   useEffect(() => {
@@ -103,18 +111,16 @@ export const AppProvider = ({ children }) => {
     >
       <ConfigProvider
         theme={{
-          algorithm:
-            appTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+          algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
           token: {
             fontSize: 16,
-            colorPrimary: appTheme === "dark" ? "#6c6c6c" : "#1677ff",
+            colorPrimary: isDarkMode ? "#6c6c6c" : "#1677ff",
             customTheme: {
-              logoApp: appTheme === "dark" ? logoDark : logo,
-              isDarkMode: appTheme === "dark",
-              primary: "#1F1F1F",
-              colorBackgroundBase: appTheme === "dark" ? "#000000" : "#F5F5F5",
-              colorBackgroundDiv: appTheme === "dark" ? "#373737" : "#cccccc",
-              colorTextBase: appTheme === "dark" ? "#ffffff" : "#000000",
+              logoApp: isDarkMode ? logoDark : logo,
+              isDarkMode: isDarkMode,
+              colorBackgroundBase: isDarkMode ? "#000000" : "#F5F5F5",
+              colorBackgroundDiv: isDarkMode ? "#373737" : "#cccccc",
+              colorTextBase: isDarkMode ? "#ffffff" : "#000000",
             },
           },
         }}

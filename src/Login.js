@@ -45,7 +45,7 @@ const Login = () => {
         color: theme.colorTextBase,
       }}
     >
-      <div style={{ fontSize: 30, fontWeight: 700 }}>Login</div>
+      <div style={{ fontSize: 30, fontWeight: 700 }}>Đăng nhập</div>
       <Form
         style={{
           color: "white !important",
@@ -60,7 +60,7 @@ const Login = () => {
           rules={[
             {
               required: true,
-              message: "Please input your email!",
+              message: "Email không được để trống!",
             },
           ]}
         >
@@ -68,12 +68,12 @@ const Login = () => {
         </Form.Item>
 
         <Form.Item
-          label="Password"
+          label="Mật khẩu"
           name="password"
           rules={[
             {
               required: true,
-              message: "Please input your password!",
+              message: "Mật khẩu không được để trống!",
             },
           ]}
         >
@@ -87,7 +87,7 @@ const Login = () => {
           }}
         >
           <Button type="primary" htmlType="submit" loading={loading}>
-            Sign In
+            Đăng nhập
           </Button>
         </Form.Item>
       </Form>

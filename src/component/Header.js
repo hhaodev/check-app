@@ -4,7 +4,10 @@ import { useAppContext, useCustomTheme } from "../context/AppContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { Header } from "antd/es/layout/layout";
-import { BulbOutlined, LogoutOutlined, MoonOutlined } from "@ant-design/icons";
+import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
+const style = {
+  padding: 5,
+};
 
 const HeaderApp = () => {
   const theme = useCustomTheme();
@@ -14,25 +17,25 @@ const HeaderApp = () => {
   const items = [
     {
       label: (
-        <div onClick={() => toggleAppTheme()}>
+        <div style={style} onClick={() => toggleAppTheme()}>
           {theme.isDarkMode ? (
-            <BulbOutlined style={{ fontSize: 13 }} />
+            <SunOutlined style={{ fontSize: 13 }} />
           ) : (
             <MoonOutlined style={{ fontSize: 13 }} />
           )}
           {` | `}
-          {theme.isDarkMode ? "Light Mode" : "Dark Mode"}
+          {theme.isDarkMode ? "Chế độ sáng" : "Chế độ tối"}
         </div>
       ),
       key: "1",
     },
     {
       label: (
-        <div onClick={() => handleSignOut()}>
-          <LogoutOutlined style={{ fontSize: 13 }} /> {` | `}Sign Out
+        <div style={style} onClick={() => handleSignOut()}>
+          <LogoutOutlined style={{ fontSize: 13 }} /> {` | `}Đăng xuất
         </div>
       ),
-      key: "0",
+      key: "2",
     },
   ];
 
@@ -73,7 +76,7 @@ const HeaderApp = () => {
         />
       </div>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <span>Hi, {userState.user.email.split("@")[0]}</span>
+        <span>Xin chào, {userState.user.email.split("@")[0]}</span>
         <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
           <Avatar style={{ backgroundColor: "#fde3cf", color: "#f56a00" }}>
             {userState.user.email.split("@")[0].charAt(0).toUpperCase()}

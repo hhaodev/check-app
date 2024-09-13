@@ -10,7 +10,7 @@ const LoadingPage = () => {
       style={{
         width: "100%",
         height: "100vh",
-        backgroundColor: theme.isDarkMode ? "#000000" : "#ffffff",
+        backgroundColor: theme.colorBackgroundBase,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

@@ -12,7 +12,7 @@ export const formatTime = (timestamp) => {
   const hours = date.getHours();
   const minutes = date.getMinutes();
 
-  const ampm = hours >= 12 ? "PM" : "AM";
+  const ampm = hours >= 12 ? "CH" : "SA";
   const formattedHours = hours % 12 || 12;
   const formattedH =
     formattedHours < 10 ? `0${formattedHours}` : formattedHours;
