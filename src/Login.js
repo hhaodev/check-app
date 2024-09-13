@@ -2,9 +2,11 @@ import React from "react";
 import { Button, Form, Input } from "antd";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebaseConfig";
-import { useAppContext } from "./context/AppContext";
+import { useAppContext, useCustomTheme } from "./context/AppContext";
 
 const Login = () => {
+  const theme = useCustomTheme();
+  console.log("🚀 ~ Login ~ theme:", theme);
   const { setUserState, setIsAuthenticated, setNeedLogin } = useAppContext();
 
   const onFinish = async (values) => {
@@ -35,8 +37,8 @@ const Login = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#000",
-        color: "#fff",
+        backgroundColor: theme.colorBackgroundBase,
+        color: theme.colorTextBase,
       }}
     >
       <div style={{ fontSize: 30, fontWeight: 700 }}>Login</div>

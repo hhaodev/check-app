@@ -11,6 +11,7 @@ import {
   Space,
   Spin,
   Tag,
+  theme,
 } from "antd";
 import "./App.css";
 import { Content } from "antd/es/layout/layout";
@@ -33,13 +34,14 @@ import {
   LoadingOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
-import { useAppContext } from "./context/AppContext";
+import { useAppContext, useCustomTheme } from "./context/AppContext";
 import image from "./assets/pn.png";
 import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 import image1 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 import { filterNotes, formatTime } from "./ultis";
 
 function AppAdmin() {
+  const theme = useCustomTheme();
   const { TextArea } = Input;
   const { userState } = useAppContext();
 
@@ -448,7 +450,7 @@ function AppAdmin() {
               style={{
                 width: "100%",
                 height: "100vh",
-                backgroundColor: "#000",
+                backgroundColor: theme.backgroundColorBase,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -517,7 +519,7 @@ function AppAdmin() {
             gap: 30,
             width: "100%",
             height: "100px",
-            backgroundColor: "#000",
+            backgroundColor: theme.colorBackgroundBase,
           }}
         >
           {!todayChecked && !loading && !error && (
@@ -599,7 +601,7 @@ function AppAdmin() {
                 return (
                   <div
                     style={{
-                      backgroundColor: "#ccc",
+                      backgroundColor: theme.colorBackgroundDiv,
                       borderRadius: "8px",
                       padding: "8px",
                       width: "100%",
@@ -672,7 +674,7 @@ function AppAdmin() {
             return (
               <div
                 style={{
-                  backgroundColor: "#ccc",
+                  backgroundColor: theme.colorBackgroundDiv,
                   borderRadius: "8px",
                   padding: "8px",
                   width: "100%",
@@ -763,7 +765,7 @@ function AppAdmin() {
               >
                 <div
                   style={{
-                    backgroundColor: "#ccc",
+                    backgroundColor: theme.colorBackgroundDiv,
                     padding: 10,
                     borderRadius: 8,
                     marginBottom: 10,

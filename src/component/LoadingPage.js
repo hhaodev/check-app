@@ -1,15 +1,16 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
 import React from "react";
-import logo from "../assets/logo.png";
+import { useCustomTheme } from "../context/AppContext";
 
 const LoadingPage = () => {
+  const theme = useCustomTheme();
   return (
     <div
       style={{
         width: "100%",
         height: "100vh",
-        backgroundColor: "#000",
+        backgroundColor: theme.isDarkMode ? "#000000" : "#ffffff",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -28,7 +29,7 @@ const LoadingPage = () => {
         }}
       >
         <img
-          src={logo}
+          src={theme.logoApp}
           style={{
             width: "50%",
             objectFit: "contain",

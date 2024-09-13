@@ -11,6 +11,7 @@ import {
   Space,
   Spin,
   Tag,
+  theme,
 } from "antd";
 import "./App.css";
 import { Content } from "antd/es/layout/layout";
@@ -27,7 +28,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import HeaderApp from "./component/Header";
-import { useAppContext } from "./context/AppContext";
+import { useAppContext, useCustomTheme } from "./context/AppContext";
 import {
   CarryOutOutlined,
   LoadingOutlined,
@@ -40,6 +41,7 @@ import image2 from "./assets/20b98398-62fd-4cef-91a7-6004aa5b23d4.png";
 import image3 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 
 function AppStandard() {
+  const theme = useCustomTheme();
   const isVisible = usePageVisibility();
 
   const { TextArea } = Input;
@@ -565,7 +567,7 @@ function AppStandard() {
             gap: 30,
             width: "100%",
             height: "100px",
-            backgroundColor: "#000",
+            backgroundColor: theme.colorBackgroundBase,
           }}
         >
           <Badge
@@ -680,7 +682,7 @@ function AppStandard() {
             return (
               <div
                 style={{
-                  backgroundColor: "#ccc",
+                  backgroundColor: theme.colorBackgroundDiv,
                   borderRadius: "8px",
                   padding: "8px",
                   width: "100%",
@@ -740,7 +742,7 @@ function AppStandard() {
                 return (
                   <div
                     style={{
-                      backgroundColor: "#ccc",
+                      backgroundColor: theme.colorBackgroundDiv,
                       borderRadius: "8px",
                       padding: "8px",
                       width: "100%",
@@ -842,7 +844,7 @@ function AppStandard() {
               >
                 <div
                   style={{
-                    backgroundColor: "#ccc",
+                    backgroundColor: theme.colorBackgroundDiv,
                     padding: 10,
                     borderRadius: 8,
                     marginBottom: 10,

@@ -3,12 +3,23 @@ import { db, messaging } from "../firebaseConfig";
 import { collection, getDocs, Timestamp, updateDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
 import { onMessage } from "firebase/messaging";
-import { message } from "antd";
+import { ConfigProvider, message, theme } from "antd";
+import logo from "../assets/logo.png";
+import logoDark from "../assets/logo-dark.png";
 
 const AppContext = createContext();
 
 export const useAppContext = () => {
   return useContext(AppContext);
+};
+
+export const useCustomTheme = () => {
+  return theme.useToken().token?.customTheme;
+};
+
+const getInitialTheme = () => {
+  const savedTheme = localStorage.getItem("theme");
+  return !!savedTheme && savedTheme !== "undefined" ? savedTheme : "dark";
 };
 
 export const AppProvider = ({ children }) => {
@@ -17,6 +28,16 @@ export const AppProvider = ({ children }) => {
   const [needLogin, setNeedLogin] = useState(false);
 
   const [appLoading, setAppLoading] = useState(true);
+
+  const [appTheme, setAppTheme] = useState(getInitialTheme);
+
+  const toggleAppTheme = () => {
+    setAppTheme(appTheme === "light" ? "dark" : "light");
+  };
+
+  useEffect(() => {
+    localStorage.setItem("theme", appTheme);
+  }, [appTheme]);
 
   useEffect(() => {
     const lastActivity = localStorage.getItem("lastActivity");
@@ -77,9 +98,29 @@ export const AppProvider = ({ children }) => {
         setIsAuthenticated,
         needLogin,
         setNeedLogin,
+        toggleAppTheme,
       }}
     >
-      {children}
+      <ConfigProvider
+        theme={{
+          algorithm:
+            appTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+          token: {
+            fontSize: 16,
+            colorPrimary: appTheme === "dark" ? "#6c6c6c" : "#1677ff",
+            customTheme: {
+              logoApp: appTheme === "dark" ? logoDark : logo,
+              isDarkMode: appTheme === "dark",
+              primary: "#1F1F1F",
+              colorBackgroundBase: appTheme === "dark" ? "#000000" : "#F5F5F5",
+              colorBackgroundDiv: appTheme === "dark" ? "#373737" : "#cccccc",
+              colorTextBase: appTheme === "dark" ? "#ffffff" : "#000000",
+            },
+          },
+        }}
+      >
+        {children}
+      </ConfigProvider>
     </AppContext.Provider>
   );
 };
