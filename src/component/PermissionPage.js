@@ -1,7 +1,7 @@
-import React from "react";
-import { useAppContext, useCustomTheme } from "../context/AppContext";
 import Link from "antd/es/typography/Link";
 import { signOut } from "firebase/auth";
+import React from "react";
+import { useAppContext, useCustomTheme } from "../context/AppContext";
 import { auth } from "../firebaseConfig";
 
 const PermissionPage = () => {

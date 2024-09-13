@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useAppContext } from "./context/AppContext";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "./firebaseConfig";
-import Login from "./Login";
 import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
-import AppStandard from "./AppStandard";
+import React, { useEffect, useState } from "react";
 import AppAdmin from "./AppAdmin";
+import AppStandard from "./AppStandard";
 import LoadingPage from "./component/LoadingPage";
 import PermissionPage from "./component/PermissionPage";
+import { useAppContext } from "./context/AppContext";
+import { auth, db } from "./firebaseConfig";
+import Login from "./Login";
 
 const App = () => {
   const {

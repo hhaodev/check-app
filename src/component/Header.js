@@ -1,10 +1,10 @@
+import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown } from "antd";
+import { Header } from "antd/es/layout/layout";
+import { signOut } from "firebase/auth";
 import React from "react";
 import { useAppContext, useCustomTheme } from "../context/AppContext";
-import { signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
-import { Header } from "antd/es/layout/layout";
-import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 const style = {
   padding: 5,
 };
