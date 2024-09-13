@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "./context/AppContext";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebaseConfig";
 import Login from "./Login";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import AppStandard from "./AppStandard";
 import AppAdmin from "./AppAdmin";
 import LoadingPage from "./component/LoadingPage";
+import PermissionPage from "./component/PermissionPage";
 
 const App = () => {
   const {
@@ -18,6 +19,16 @@ const App = () => {
     isAuthenticated,
     setIsAuthenticated,
   } = useAppContext();
+
+  const [refreshLogin, setRefreshLogin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "users"), () => {
+      setRefreshLogin((prev) => !prev);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -66,7 +77,7 @@ const App = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [refreshLogin]);
 
   if (
     userState.role === "admin" &&
@@ -82,6 +93,13 @@ const App = () => {
     !appLoading
   ) {
     return <AppStandard />;
+  } else if (
+    userState.role === undefined &&
+    isAuthenticated &&
+    !needLogin &&
+    !appLoading
+  ) {
+    return <PermissionPage />;
   } else if (needLogin && !appLoading) {
     return <Login />;
   } else {

@@ -21,16 +21,13 @@ const NetworkProvider = ({ children }) => {
       >
         <div
           style={{
-            width: "80%",
+            width: "70%",
             textAlign: "center",
             color: theme.colorTextBase,
           }}
         >
-          <h1>Network Error</h1>
-          <p>
-            You are currently offline. Please check your network connection and
-            try again.
-          </p>
+          <h1>Lỗi mạng</h1>
+          <p>Bạn đang không có kết nối mạng, vui lòng kết nối và thử lại.</p>
         </div>
       </div>
     );

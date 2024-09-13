@@ -1,17 +1,35 @@
-import React from "react";
-import { Button, Form, Input } from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, message } from "antd";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebaseConfig";
+import { auth, db } from "./firebaseConfig";
 import { useCustomTheme } from "./context/AppContext";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const Login = () => {
   const theme = useCustomTheme();
-
-  const onFinish = (values) => {
+  const [loading, setLoading] = useState(false);
+  const onFinish = async (values) => {
+    setLoading(true);
     try {
-      signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      const user = userCredential.user;
+      if (user && user.uid) {
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (!docSnap.exists()) {
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            uid: user.uid,
+          });
+        }
+      }
     } catch (error) {
-      console.error("Error logging in:", error);
+      message.error("Người dùng không tồn tại!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +64,7 @@ const Login = () => {
             },
           ]}
         >
-          <Input />
+          <Input type="email" />
         </Form.Item>
 
         <Form.Item
@@ -68,7 +86,7 @@ const Login = () => {
             justifyContent: "center",
           }}
         >
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={loading}>
             Sign In
           </Button>
         </Form.Item>
