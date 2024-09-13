@@ -369,7 +369,11 @@ function AppStandard() {
         },
         createAt: Timestamp.fromDate(new Date()),
       });
-      message.success("Anh đã nhận được note của em <3");
+      if (userSelected !== userState.user.uid) {
+        message.success("Anh đã nhận được note của em <3");
+      } else if (userSelected === userState.user.uid) {
+        message.success("Tạo note thành công!");
+      }
       setLevel("normal");
       setDescriptionNote("");
       setOpenChildrenPanel(false);
@@ -692,7 +696,7 @@ function AppStandard() {
                 }}
                 key={index}
               >
-                {`"${i?.text}" `}
+                {`"${i?.text}"`}
                 <div
                   style={{
                     fontSize: 10,

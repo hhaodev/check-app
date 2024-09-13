@@ -2,28 +2,14 @@ import React from "react";
 import { Button, Form, Input } from "antd";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebaseConfig";
-import { useAppContext, useCustomTheme } from "./context/AppContext";
+import { useCustomTheme } from "./context/AppContext";
 
 const Login = () => {
   const theme = useCustomTheme();
-  console.log("🚀 ~ Login ~ theme:", theme);
-  const { setUserState, setIsAuthenticated, setNeedLogin } = useAppContext();
 
-  const onFinish = async (values) => {
+  const onFinish = (values) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-      const user = userCredential.user;
-
-      setUserState((prevState) => ({
-        ...prevState,
-        user: user,
-      }));
-      setIsAuthenticated(true);
-      setNeedLogin(false);
+      signInWithEmailAndPassword(auth, values.email, values.password);
     } catch (error) {
       console.error("Error logging in:", error);
     }

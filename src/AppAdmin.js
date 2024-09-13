@@ -334,7 +334,11 @@ function AppAdmin() {
         },
         createAt: Timestamp.fromDate(new Date()),
       });
-      message.success("Em đã nhận được note của anh <3");
+      if (userSelected !== userState.user.uid) {
+        message.success("Em đã nhận được note của anh <3");
+      } else if (userSelected === userState.user.uid) {
+        message.success("Tạo note thành công!");
+      }
       setLevel("normal");
       setDescriptionNote("");
       setOpenChildrenPanel(false);
@@ -684,7 +688,7 @@ function AppAdmin() {
                 }}
                 key={index}
               >
-                {`"${i?.text}" `}
+                {`"${i?.text}"`}
                 <div
                   style={{
                     fontSize: 10,
