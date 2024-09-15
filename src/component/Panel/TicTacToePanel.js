@@ -1,5 +1,14 @@
 import { LoadingOutlined } from "@ant-design/icons";
-import { Button, Drawer, message, Modal, Select, Space, Spin } from "antd";
+import {
+  Button,
+  Drawer,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Spin,
+} from "antd";
 import {
   addDoc,
   collection,
@@ -482,7 +491,15 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
       extra={
         <Space>
           {layoutPage === "ingame" && (
-            <Button onClick={handleCancelGame}>Thoát Game</Button>
+            <Popconfirm
+              title="Thoát game!!!"
+              description={`Sau khi thoát game, toàn bộ dữ liệu game sẽ bị mất. Bạn có thể sử dụng nút "X" phía góc phải để có thể chơi tiếp ván này vào lúc khác.`}
+              onConfirm={handleCancelGame}
+              okText="Thoát"
+              cancelText="Chơi tiếp"
+            >
+              <Button>Thoát Game</Button>
+            </Popconfirm>
           )}
           <Button onClick={onClosePanel}>X</Button>
         </Space>
