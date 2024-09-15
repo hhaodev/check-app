@@ -277,7 +277,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               style={{ textAlign: "center", lineHeight: 1.5 }}
             >{`Đang chờ người chơi "${
               gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
-            }" chấp nhận trấn đấu.`}</p>
+            }" chấp nhận trận đấu.`}</p>
             <Button loading={loadingButton} onClick={handleCancelGame}>
               Huỷ trận đấu
             </Button>
