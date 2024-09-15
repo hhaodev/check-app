@@ -239,9 +239,11 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                   fontWeight: 700,
                 }}
               >
-                {gameData?.winner === userState.user.email
-                  ? `Người chiến thắng: ${gameData.winner}`
-                  : `Bạn đã thua cuộc`}
+                {gameData?.winner === "Hoà"
+                  ? `Deo ai thắng cả :)) hoà `
+                  : gameData?.winner === userState.user.email
+                  ? `Bạn là người chiến thắng!!!`
+                  : `Bạn đã thua cuộc!!!`}
               </div>
             ) : (
               <div
@@ -545,7 +547,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               onChange={handleSizeChange}
               value={boardSize}
             >
-              {Array.from({ length: 11 }, (_, i) => i + 5).map((value) => (
+              {Array.from({ length: 6 }, (_, i) => i + 10).map((value) => (
                 <Select.Option key={value} value={value}>
                   {value}
                 </Select.Option>
