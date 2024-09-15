@@ -8,6 +8,7 @@ import PermissionPage from "./component/PermissionPage";
 import { useAppContext } from "./context/AppContext";
 import { auth, db } from "./firebaseConfig";
 import Login from "./Login";
+import AppNormal from "./AppNormal";
 
 const App = () => {
   const {
@@ -79,32 +80,28 @@ const App = () => {
     return () => unsubscribe();
   }, [refreshLogin]);
 
-  if (
-    userState.role === "admin" &&
-    isAuthenticated &&
-    !needLogin &&
-    !appLoading
-  ) {
-    return <AppAdmin />;
-  } else if (
-    userState.role === "standard" &&
-    isAuthenticated &&
-    !needLogin &&
-    !appLoading
-  ) {
-    return <AppStandard />;
-  } else if (
-    userState.role === undefined &&
-    isAuthenticated &&
-    !needLogin &&
-    !appLoading
-  ) {
-    return <PermissionPage />;
-  } else if (needLogin && !appLoading) {
-    return <Login />;
-  } else {
-    return <LoadingPage />;
-  }
+  const renderApp = () => {
+    if (isAuthenticated && !needLogin && !appLoading) {
+      switch (userState.role) {
+        case "admin":
+          return <AppAdmin />;
+        case "standard":
+          return <AppStandard />;
+        case "normal":
+          return <AppNormal />;
+        case undefined:
+          return <PermissionPage />;
+        default:
+          return <LoadingPage />;
+      }
+    } else if (needLogin && !appLoading) {
+      return <Login />;
+    } else {
+      return <LoadingPage />;
+    }
+  };
+
+  return <>{renderApp()}</>;
 };
 
 export default App;

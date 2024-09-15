@@ -11,7 +11,6 @@ body {
 }
 
 
-
 .layout {
   overflow: hidden;
   width: 100%;
@@ -38,4 +37,43 @@ body {
 
 .ant-drawer-content-wrapper {
   width: 100% !important;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+.board-row {
+  display: flex;
+}
+
+.square {
+  width: 100%;
+  aspect-ratio: 1;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.board-row .square {
+  border-right: 0;
+}
+
+.board-row .square {
+  border-top: 0;
+}
+
+.board-row:first-child .square {
+  border-top: 1px solid #000;
+}
+
+.board-row .square:last-child {
+  border-right: 1px solid #000;
+
 }

@@ -114,15 +114,16 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
   const getOptionsAddNote = async () => {
     setPanelLoading(true);
     try {
-      const usersCollection = collection(db, "users");
+      const usersCollection = collection(db, "group");
       const usersSnapshot = await getDocs(usersCollection);
-      const usersList = usersSnapshot.docs.map((doc) => ({
+      const data = usersSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setUsersList(usersList);
+      setUsersList(data[0]?.users);
       setUserSelected(
-        usersList?.filter((user) => user.uid !== userState?.user?.uid)[0]?.uid
+        data[0]?.users?.filter((user) => user.uid !== userState?.user?.uid)[0]
+          ?.uid
       );
     } catch (error) {
       console.log(error);

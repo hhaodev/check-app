@@ -1,5 +1,11 @@
 import { ConfigProvider, message, theme } from "antd";
-import { collection, doc, getDocs, Timestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { onMessage } from "firebase/messaging";
 import React, {
   createContext,
@@ -115,7 +121,7 @@ export const AppProvider = ({ children }) => {
             fontSize: 16,
             colorPrimary: isDarkMode ? "#6c6c6c" : "#1677ff",
             customTheme: {
-              logoApp: isDarkMode ? logoDark : logo,
+              logoApp: logo,
               isDarkMode: isDarkMode,
               colorBackgroundBase: isDarkMode ? "#000000" : "#F5F5F5",
               colorBackgroundDiv: isDarkMode ? "#373737" : "#cccccc",
