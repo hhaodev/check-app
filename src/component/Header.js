@@ -83,7 +83,14 @@ const HeaderApp = () => {
           Xin chào, {userState.user.email.split("@")[0]}
         </span>
         <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
-          <Avatar style={{ backgroundColor: "#fde3cf", color: "#f56a00" }}>
+          <Avatar
+            style={{
+              minWidth: 32,
+              minHeight: 32,
+              backgroundColor: "#fde3cf",
+              color: "#f56a00",
+            }}
+          >
             {userState.user.email.split("@")[0].charAt(0).toUpperCase()}
           </Avatar>
         </Dropdown>
