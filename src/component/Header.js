@@ -2,9 +2,10 @@ import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { signOut } from "firebase/auth";
+import { deleteDoc, doc } from "firebase/firestore";
 import React from "react";
 import { useAppContext, useCustomTheme } from "../context/AppContext";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 const style = {
   padding: 5,
 };
@@ -47,6 +48,7 @@ const HeaderApp = () => {
         user: null,
         role: null,
       }));
+      await deleteDoc(doc(db, "session", userState.user.uid));
       console.log("User signed out successfully");
     } catch (error) {
       console.error("Error signing out:", error);

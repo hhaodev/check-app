@@ -9,6 +9,7 @@ import { useAppContext } from "./context/AppContext";
 import { auth, db } from "./firebaseConfig";
 import Login from "./Login";
 import AppNormal from "./AppNormal";
+import LoggedAnotherPage from "./component/LoggedAnotherPage";
 
 const App = () => {
   const {
@@ -19,6 +20,7 @@ const App = () => {
     setNeedLogin,
     isAuthenticated,
     setIsAuthenticated,
+    isLoggedAnother,
   } = useAppContext();
 
   const [refreshLogin, setRefreshLogin] = useState(false);
@@ -82,17 +84,21 @@ const App = () => {
 
   const renderApp = () => {
     if (isAuthenticated && !needLogin && !appLoading) {
-      switch (userState.role) {
-        case "admin":
-          return <AppAdmin />;
-        case "standard":
-          return <AppStandard />;
-        case "normal":
-          return <AppNormal />;
-        case undefined:
-          return <PermissionPage />;
-        default:
-          return <LoadingPage />;
+      if (isLoggedAnother) {
+        return <LoggedAnotherPage />;
+      } else {
+        switch (userState.role) {
+          case "admin":
+            return <AppAdmin />;
+          case "standard":
+            return <AppStandard />;
+          case "normal":
+            return <AppNormal />;
+          case undefined:
+            return <PermissionPage />;
+          default:
+            return <LoadingPage />;
+        }
       }
     } else if (needLogin && !appLoading) {
       return <Login />;

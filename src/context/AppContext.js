@@ -3,6 +3,8 @@ import {
   collection,
   doc,
   getDocs,
+  onSnapshot,
+  setDoc,
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
@@ -14,9 +16,9 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import logoDark from "../assets/logo-dark.png";
 import logo from "../assets/logo.png";
 import { db, messaging } from "../firebaseConfig";
+import { getBrowserId } from "../ultis";
 
 const AppContext = createContext();
 
@@ -42,6 +44,8 @@ export const AppProvider = ({ children }) => {
 
   const [appTheme, setAppTheme] = useState(getInitialTheme); // default dark mode
 
+  const [isLoggedAnother, setIsLoggedAnother] = useState(false);
+
   const toggleAppTheme = () => {
     const targetTheme = appTheme === "light" ? "dark" : "light";
     setAppTheme(targetTheme);
@@ -51,6 +55,10 @@ export const AppProvider = ({ children }) => {
   const isDarkMode = useMemo(() => {
     return appTheme === "dark";
   }, [appTheme]);
+
+  const browserId = useMemo(() => {
+    return getBrowserId();
+  }, []);
 
   useEffect(() => {
     const lastActivity = localStorage.getItem("lastActivity");
@@ -90,6 +98,44 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (userState && userState.user) {
+      (async () => {
+        await setDoc(doc(db, "session", userState.user.uid), {
+          browserId: browserId,
+          uid: userState.user.uid,
+        });
+      })();
+    }
+  }, [userState]);
+
+  useEffect(() => {
+    if (userState && userState.user) {
+      const unsubscribe = onSnapshot(
+        collection(db, "session"),
+        (querySnapshot) => {
+          try {
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (
+                data.uid === userState?.user?.uid &&
+                data.browserId !== browserId
+              ) {
+                setIsLoggedAnother(true);
+              } else {
+                setIsLoggedAnother(false);
+              }
+            });
+          } catch (error) {
+            console.error("Error processing snapshot:", error);
+          }
+        }
+      );
+
+      return () => unsubscribe();
+    }
+  }, [userState]);
+
   onMessage(messaging, (payload) => {
     console.log("🚀 ~ onMessage ~ messaging:", payload);
     if (payload) {
@@ -112,6 +158,7 @@ export const AppProvider = ({ children }) => {
         needLogin,
         setNeedLogin,
         toggleAppTheme,
+        isLoggedAnother,
       }}
     >
       <ConfigProvider
