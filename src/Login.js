@@ -5,12 +5,13 @@ import {
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
-import { useCustomTheme } from "./context/AppContext";
+import { useAppContext, useCustomTheme } from "./context/AppContext";
 import { auth, db, provider } from "./firebaseConfig";
 import { signInWithPopup } from "firebase/auth";
 
 const Login = () => {
   const theme = useCustomTheme();
+  const { setAppLoading } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [typePage, setTypePage] = useState("login");
   const onFinish = async (values) => {
@@ -46,6 +47,7 @@ const Login = () => {
   };
 
   const hanleWithGG = async () => {
+    setAppLoading(true);
     const userCredential = await signInWithPopup(auth, provider);
     const user = userCredential.user;
     await setDoc(doc(db, "users", user.uid), {
@@ -53,6 +55,7 @@ const Login = () => {
       uid: user.uid,
       role: "normal",
     });
+    setAppLoading(false);
   };
 
   return (

@@ -149,6 +149,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         appLoading,
+        setAppLoading,
         userState,
         setUserState,
         isAuthenticated,
