@@ -21,12 +21,13 @@ const LoggedAnotherPage = () => {
           width: "70%",
           textAlign: "center",
           color: theme.colorTextBase,
+          lineHeight: 1.5,
         }}
       >
         <h1>Bạn đã đăng nhập ở 1 thiết bị khác</h1>
         <p>
-          Bạn bạn không thể truy cập trang web từ thiết bị này vì đã truy cập ở
-          1 thiết bị khác.
+          Bạn không thể truy cập trang web từ thiết bị này vì đã truy cập ở 1
+          thiết bị khác.
         </p>
         <Link onClick={() => window.location.reload()}>
           Truy cập bằng thiết bị này?

@@ -24,6 +24,7 @@ const PermissionPage = () => {
           width: "70%",
           textAlign: "center",
           color: theme.colorTextBase,
+          lineHeight: 1.5,
         }}
       >
         <h1>Không có quyền truy cập</h1>
