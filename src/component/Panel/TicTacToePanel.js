@@ -237,6 +237,31 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
 
   const handleCreateGame = async () => {
     setLoadingButton(true);
+    //check user có đang rảnh không
+
+    const gamesCollection = collection(db, "game");
+    const gamesQuery = query(gamesCollection, where("isComplete", "==", false));
+    const gamesSnapshot = await getDocs(gamesQuery);
+
+    // Lấy tất cả các userId đang tham gia các game chưa hoàn thành
+    const userIdsInGame = [];
+    gamesSnapshot.forEach((gameDoc) => {
+      const gameData = gameDoc.data();
+      if (gameData.user && Array.isArray(gameData.user)) {
+        gameData.user.forEach((user) => {
+          userIdsInGame.push(user.uid);
+        });
+      }
+    });
+
+    if (userIdsInGame.includes(userSelected)) {
+      message.error(
+        "Người chơi đang ở trong 1 trận đấu khác, vui lòng thử lại sau!"
+      );
+      setLoadingButton(false);
+      return;
+    }
+
     await addDoc(collection(db, "game"), {
       board: Array(boardSize * boardSize).fill(null),
       boardSize: boardSize,
@@ -367,14 +392,20 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                           padding: "20px 8px",
                           width: "100%",
                           display: "flex",
-                          flexDirection: "column",
+                          alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        {`Trận của ${userState.user.email} với ${
+                        <div>{`Trận của ${userState.user.email} với ${
                           i?.user?.find((u) => u.uid !== userState.user.uid)
                             .email
-                        }`}
+                        }`}</div>
+                        <div style={{ minWidth: "fit-content" }}>
+                          |{" "}
+                          {i?.winner === userState.user.email
+                            ? "Chiến thắng"
+                            : "Thất bại"}
+                        </div>
                       </div>
                     );
                   })}
