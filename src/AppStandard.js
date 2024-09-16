@@ -27,6 +27,7 @@ import TicTacToePanel from "./component/Panel/TicTacToePanel";
 import { useAppContext, useCustomTheme } from "./context/AppContext";
 import { db } from "./firebaseConfig";
 import { formatTime, usePageVisibility } from "./ultis";
+import ListenGame from "./component/ListenGame";
 
 const styleImage = {
   width: "80%",
@@ -74,49 +75,6 @@ function AppStandard() {
 
   //notes region
   const [notes, setNotes] = useState([]);
-
-  const [gameData, setGameData] = useState(null);
-  const [openModalAcpGame, setOpenModalAcpGame] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "game"), (querySnapshot) => {
-      try {
-        let hasDocuments = false;
-
-        querySnapshot.forEach((doc) => {
-          hasDocuments = true;
-
-          const data = doc.data();
-          if (data) {
-            setGameData({ id: doc.id, ...data });
-            const isCurrentUserInArray = data.user.some(
-              (u) => u.uid === userState.user.uid
-            );
-
-            if (isCurrentUserInArray) {
-              if (
-                data.user.find((u) => u.uid === userState.user.uid)?.inGame ===
-                false
-              ) {
-                setOpenGamePanel(false);
-                setOpenModalAcpGame(true);
-              }
-            }
-          }
-        });
-
-        if (!hasDocuments) {
-          setGameData(null);
-          setOpenModalAcpGame(false);
-        }
-      } catch (error) {
-        console.error("Error processing snapshot:", error);
-      } finally {
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
@@ -280,22 +238,6 @@ function AppStandard() {
 
     return () => unsubscribe();
   }, []);
-
-  const handleAcpGame = async () => {
-    const itemDoc = doc(db, "game", gameData.id);
-    const updatedUserArray = gameData.user.map((user) =>
-      user.uid === userState.user.uid ? { ...user, inGame: true } : user
-    );
-    await updateDoc(itemDoc, { user: updatedUserArray, pending: false });
-    setOpenModalAcpGame(false);
-    setOpenGamePanel(true);
-  };
-
-  const handleCancelGame = async () => {
-    const itemDoc = doc(db, "game", gameData.id);
-    await updateDoc(itemDoc, { quit: true, pending: false });
-    setOpenModalAcpGame(false);
-  };
 
   return (
     <>
@@ -600,24 +542,13 @@ function AppStandard() {
         open={openGamePanel}
         onClosePanel={() => setOpenGamePanel(false)}
       />
-      <Modal open={openModalAcpGame} closable={false} footer={null}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 20,
-          }}
-        >
-          <p style={{ textAlign: "center" }}>{`Bạn có 1 lời mời X O Game từ "${
-            gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
-          }"`}</p>
-
-          <Button onClick={() => handleCancelGame()}>Từ chối</Button>
-          <Button onClick={() => handleAcpGame()}>Chấp nhận</Button>
-        </div>
-      </Modal>
+      <ListenGame
+        clearScreen={() => {
+          setOpenGamePanel(false);
+          setOpenPanel(false);
+        }}
+        onAcpGame={() => setOpenGamePanel(true)}
+      />
     </>
   );
 }

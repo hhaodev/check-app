@@ -2,25 +2,32 @@ import { LoadingOutlined } from "@ant-design/icons";
 import {
   Button,
   Drawer,
+  Input,
   message,
   Modal,
   Popconfirm,
   Select,
   Space,
   Spin,
+  Tag,
 } from "antd";
 import {
   addDoc,
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
   getDocs,
   onSnapshot,
+  query,
+  Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import React, { useEffect, useMemo, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useAppContext, useCustomTheme } from "../../context/AppContext";
 import { db } from "../../firebaseConfig";
+import { usePageVisibility } from "../../ultis";
 
 const minSize = 5; // Kích thước nhỏ nhất
 const maxSize = 15; // Kích thước lớn nhất
@@ -30,6 +37,7 @@ const initializeSize = 10;
 
 const TicTacToePanel = ({ open, onClosePanel }) => {
   const { userState } = useAppContext();
+  const invisible = usePageVisibility();
   //setting board
   const [boardSize, setBoardSize] = useState(initializeSize);
 
@@ -48,6 +56,9 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   const [layoutPage, setLayoutPage] = useState("none");
 
   const [gameData, setGameData] = useState(null);
+  const [historyGameData, setHistoryGameData] = useState([]);
+
+  const [msgInGame, setMsgInGame] = useState("");
 
   const fontSize = useMemo(() => {
     return (
@@ -79,15 +90,61 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
     setIsX(usersList?.find((i) => i.uid === userState.user.uid)?.email);
   }, [usersList]);
 
+  useEffect(() => {
+    (async () => {
+      if (gameData) {
+        const itemDoc = doc(db, "game", gameData.id);
+        if (invisible && open) {
+          const updatedUserArray = gameData.user.map((user) =>
+            user.uid === userState.user.uid
+              ? { ...user, inGame: true, isOnline: true }
+              : user
+          );
+          await updateDoc(itemDoc, { user: updatedUserArray });
+        } else {
+          const updatedUserArray = gameData.user.map((user) =>
+            user.uid === userState.user.uid
+              ? { ...user, inGame: true, isOnline: false }
+              : user
+          );
+          await updateDoc(itemDoc, { user: updatedUserArray });
+        }
+      }
+    })();
+  }, [gameData, invisible, open]);
+
   const getAllUsers = async () => {
     try {
       const usersCollection = collection(db, "users");
       const usersSnapshot = await getDocs(usersCollection);
-      const userList = usersSnapshot.docs.map((doc) => ({
+      const allUsers = usersSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setUsersList(userList);
+
+      const gamesCollection = collection(db, "game");
+      const gamesQuery = query(
+        gamesCollection,
+        where("isComplete", "==", false)
+      );
+
+      onSnapshot(gamesQuery, (gamesSnapshot) => {
+        const userIdsInGame = [];
+        gamesSnapshot.forEach((gameDoc) => {
+          const gameData = gameDoc.data();
+          if (gameData.user && Array.isArray(gameData.user)) {
+            gameData.user.forEach((user) => {
+              userIdsInGame.push(user);
+            });
+          }
+        });
+
+        const userList = allUsers.filter(
+          (user) => !userIdsInGame.some((gameUser) => gameUser.uid === user.uid)
+        );
+
+        setUsersList(userList);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -121,13 +178,11 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
           setGlobalLoading(true);
           try {
             let hasDocuments = false;
+            const history = [];
 
             querySnapshot.forEach((doc) => {
-              hasDocuments = true;
-
               const data = doc.data();
               if (data) {
-                setGameData({ id: doc.id, ...data });
                 const isCurrentUserInArray = data.user.some(
                   (u) => u.uid === userState.user.uid
                 );
@@ -135,8 +190,22 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                 if (
                   isCurrentUserInArray &&
                   data.user.find((u) => u.uid === userState.user.uid).inGame ===
-                    true
+                    true &&
+                  data.isComplete === true
                 ) {
+                  history.push({ id: doc.id, ...data });
+                }
+
+                if (
+                  isCurrentUserInArray &&
+                  data.user.find((u) => u.uid === userState.user.uid).inGame ===
+                    true &&
+                  data.isComplete === false
+                ) {
+                  hasDocuments = true;
+
+                  setGameData({ id: doc.id, ...data });
+
                   if (data.quit) {
                     setLayoutPage("quit");
                   } else if (data.pending) {
@@ -144,12 +213,11 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                   } else {
                     setLayoutPage("ingame");
                   }
-                } else {
-                  setGameData(null);
-                  setLayoutPage("none");
                 }
               }
             });
+
+            setHistoryGameData(history);
 
             if (!hasDocuments) {
               setGameData(null);
@@ -176,11 +244,17 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
       isX: isX,
       lastCheck: "",
       user: [
-        { uid: userState.user.uid, email: userState.user.email, inGame: true },
+        {
+          uid: userState.user.uid,
+          email: userState.user.email,
+          inGame: true,
+          isOnline: true,
+        },
         {
           uid: userSelected,
           email: userSelectedEmail,
           inGame: false,
+          isOnline: false,
         },
       ],
       winningLine: [],
@@ -189,6 +263,8 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
       pending: true,
       winner: "",
       nextTurn: xNext ? isX : isO,
+      isComplete: false,
+      msg: [],
     });
     setOpenModalSetting(false);
     setLoadingButton(false);
@@ -202,10 +278,221 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
     setLoadingButton(false);
   };
 
+  const handleOutGame = async () => {
+    setLoadingButton(true);
+
+    const itemDoc = doc(db, "game", gameData.id);
+
+    if (!gameData?.winner) {
+      await deleteDoc(doc(db, "game", gameData.id));
+    } else {
+      await updateDoc(itemDoc, {
+        isComplete: true,
+      });
+    }
+
+    setGameData(null);
+    setLayoutPage("none");
+    setLoadingButton(false);
+  };
+
+  const handleSendMsgInGame = async () => {
+    const itemDoc = doc(db, "game", gameData.id);
+    await updateDoc(itemDoc, {
+      msg: arrayUnion({
+        sender: userState.user.email,
+        message: msgInGame,
+        sendAt: Timestamp.fromDate(new Date()),
+      }),
+    });
+    setMsgInGame("");
+  };
+
   //renderLayout
   const renderPageGame = () => {
     switch (layoutPage) {
       case "none":
+        return (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+            }}
+          >
+            <Button
+              style={{
+                padding: "30px 10px",
+              }}
+              onClick={() => setOpenModalSetting(true)}
+            >
+              Tạo Game Mới
+            </Button>
+            {historyGameData?.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 20,
+                }}
+              >
+                <div style={{ fontSize: "20px", fontWeight: 700 }}>
+                  Lịch sử đánh
+                </div>
+                <div
+                  style={{
+                    maxHeight: "calc(100vh - 65px - 48px - 62px - 60px - 20px)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 20,
+                    overflow: "auto",
+                  }}
+                >
+                  {historyGameData?.map((i) => {
+                    return (
+                      <div
+                        onClick={() => {
+                          setGameData(i);
+                          setLayoutPage("viewgame");
+                        }}
+                        key={i.id}
+                        style={{
+                          backgroundColor:
+                            i.winner === userState.user.email
+                              ? "#28344E"
+                              : "#59343B",
+                          borderRadius: "8px",
+                          padding: "20px 8px",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {`Trận của ${userState.user.email} với ${
+                          i?.user?.find((u) => u.uid !== userState.user.uid)
+                            .email
+                        }`}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      case "ingame":
+        return (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              gap: "10px",
+            }}
+          >
+            <div>
+              {`Bên X: ${gameData.isX}`}{" "}
+              {gameData?.user.find((u) => u.email === gameData.isX).isOnline ? (
+                <Tag color="green">Online</Tag>
+              ) : (
+                <Tag color="red">Offline</Tag>
+              )}
+            </div>
+            <div>
+              {`Bên O: ${gameData.isO}`}{" "}
+              {gameData?.user.find((u) => u.email === gameData.isO).isOnline ? (
+                <Tag color="green">Online</Tag>
+              ) : (
+                <Tag color="red">Offline</Tag>
+              )}
+            </div>
+            {Boolean(gameData.winner) ? (
+              <div
+                style={{
+                  padding: 10,
+                  textAlign: "center",
+                  fontWeight: 700,
+                }}
+              >
+                {gameData?.winner === "Hoà"
+                  ? `Deo ai thắng cả :)) hoà nhá`
+                  : gameData?.winner === userState.user.email
+                  ? `Bạn là người chiến thắng!!!`
+                  : `Bạn đã thua cuộc!!!`}
+              </div>
+            ) : (
+              <div
+                style={{
+                  padding: 10,
+                  textAlign: "center",
+                  fontWeight: 700,
+                }}
+              >
+                {gameData?.nextTurn !== userState.user.email
+                  ? "Lượt đi của đối thủ"
+                  : "Đến lượt bạn"}
+              </div>
+            )}
+
+            <div className="board">{renderBoard()}</div>
+            <div
+              style={{
+                minHeight:
+                  "calc(100vh - 65px - 48px - 80px - 80px - 350px - 35px)",
+                maxHeight:
+                  "calc(100vh - 65px - 48px - 80px - 80px - 350px - 35px)",
+                overflow: "auto",
+                border: "1px solid #000",
+                padding: " 20px",
+                borderRadius: 8,
+              }}
+            >
+              {gameData.msg?.length > 0 ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  {gameData.msg
+                    .sort((a, b) => b?.sendAt?.seconds - a?.sendAt?.seconds)
+                    .map((i, index) => (
+                      <div key={index}>
+                        {i.sender.split("@")[0]}: {i.message}
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <>Không có tin nhắn nào</>
+              )}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+              }}
+            >
+              <Input
+                value={msgInGame}
+                onChange={(e) => setMsgInGame(e.target.value)}
+                placeholder="Nhập tin nhắn"
+                style={{ padding: 10 }}
+              />
+              <Button
+                disabled={!Boolean(msgInGame)}
+                style={{ padding: "22px 20px" }}
+                onClick={handleSendMsgInGame}
+              >
+                Gửi
+              </Button>
+            </div>
+          </div>
+        );
+      case "pending":
         return (
           <div
             style={{
@@ -216,10 +503,34 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               gap: 20,
             }}
           >
-            <Button onClick={() => setOpenModalSetting(true)}>Tạo Game</Button>
+            <p
+              style={{ textAlign: "center", lineHeight: 1.5 }}
+            >{`Đang chờ người chơi "${
+              gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
+            }" chấp nhận trận đấu.`}</p>
+            <Button loading={loadingButton} onClick={handleCancelGame}>
+              Huỷ trận đấu
+            </Button>
           </div>
         );
-      case "ingame":
+      case "quit":
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              justifyContent: "center",
+              gap: 20,
+            }}
+          >
+            <p style={{ textAlign: "center", lineHeight: 1.5 }}>{`Người chơi "${
+              gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
+            }" đã từ chối trận đấu.`}</p>
+            <Button onClick={handleCancelGame}>Thoát</Button>
+          </div>
+        );
+      case "viewgame":
         return (
           <div
             style={{
@@ -260,44 +571,6 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
             )}
 
             <div className="board">{renderBoard()}</div>
-          </div>
-        );
-      case "pending":
-        return (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              justifyContent: "center",
-              gap: 20,
-            }}
-          >
-            <p
-              style={{ textAlign: "center", lineHeight: 1.5 }}
-            >{`Đang chờ người chơi "${
-              gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
-            }" chấp nhận trận đấu.`}</p>
-            <Button loading={loadingButton} onClick={handleCancelGame}>
-              Huỷ trận đấu
-            </Button>
-          </div>
-        );
-      case "quit":
-        return (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              justifyContent: "center",
-              gap: 20,
-            }}
-          >
-            <p style={{ textAlign: "center", lineHeight: 1.5 }}>{`Người chơi "${
-              gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
-            }" đã từ chối trận đấu.`}</p>
-            <Button onClick={handleCancelGame}>Thoát</Button>
           </div>
         );
       default:
@@ -492,18 +765,32 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
       title="X O Game"
       extra={
         <Space>
-          {layoutPage === "ingame" && (
-            <Popconfirm
-              title="Thoát game!!!"
-              description={`Sau khi thoát game, toàn bộ dữ liệu game sẽ bị mất. Bạn có thể sử dụng nút "X" phía góc phải để có thể chơi tiếp ván này vào lúc khác.`}
-              onConfirm={handleCancelGame}
-              okText="Thoát"
-              cancelText="Chơi tiếp"
+          {layoutPage === "ingame" &&
+            (gameData?.winner ? (
+              <Button onClick={handleOutGame}>Thoát Game</Button>
+            ) : (
+              <Popconfirm
+                title="Thoát game!!!"
+                description={`Khi chưa tìm ra người chiến thắng mà thoát game, dữ liệu của game này sẽ không được ghi lại. Bạn có thể sử dụng nút "X" phía trên góc phải để có thể chơi tiếp ván này vào lúc khác.`}
+                onConfirm={handleOutGame}
+                okText="Thoát"
+                cancelText="Chơi tiếp"
+              >
+                <Button>Thoát Game</Button>
+              </Popconfirm>
+            ))}
+          {layoutPage === "viewgame" ? (
+            <Button
+              onClick={() => {
+                setGameData(null);
+                setLayoutPage("none");
+              }}
             >
-              <Button>Thoát Game</Button>
-            </Popconfirm>
+              X
+            </Button>
+          ) : (
+            <Button onClick={onClosePanel}>X</Button>
           )}
-          <Button onClick={onClosePanel}>X</Button>
         </Space>
       }
     >
