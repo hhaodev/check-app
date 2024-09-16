@@ -353,7 +353,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
             >
               Tạo Game Mới
             </Button>
-            {historyGameData?.length > 0 && (
+            {historyGameData?.length > 0 ? (
               <div
                 style={{
                   display: "flex",
@@ -410,6 +410,16 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                     );
                   })}
                 </div>
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontSize: "20px",
+                  textAlign: "center",
+                  lineHeight: "36px",
+                }}
+              >
+                Bạn chưa chơi game nào! Hãy chơi thử 1 trận nhé.
               </div>
             )}
           </div>

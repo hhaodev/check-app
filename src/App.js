@@ -94,7 +94,7 @@ const App = () => {
             return <AppStandard />;
           case "normal":
             return <AppNormal />;
-          case undefined:
+          case "none":
             return <PermissionPage />;
           default:
             return <LoadingPage />;

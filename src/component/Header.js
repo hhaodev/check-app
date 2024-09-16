@@ -79,7 +79,9 @@ const HeaderApp = () => {
         />
       </div>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <span>Xin chào, {userState.user.email.split("@")[0]}</span>
+        <span style={{ lineHeight: "20px", textAlign: "end" }}>
+          Xin chào, {userState.user.email.split("@")[0]}
+        </span>
         <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
           <Avatar style={{ backgroundColor: "#fde3cf", color: "#f56a00" }}>
             {userState.user.email.split("@")[0].charAt(0).toUpperCase()}

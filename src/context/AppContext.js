@@ -45,7 +45,6 @@ export const AppProvider = ({ children }) => {
   const [appTheme, setAppTheme] = useState(getInitialTheme); // default dark mode
 
   const [isLoggedAnother, setIsLoggedAnother] = useState(false);
-  console.log("🚀 ~ AppProvider ~ isLoggedAnother:", isLoggedAnother);
 
   const toggleAppTheme = () => {
     const targetTheme = appTheme === "light" ? "dark" : "light";
