@@ -18,7 +18,7 @@ import React, {
 } from "react";
 import logo from "../assets/logo.png";
 import { db, messaging } from "../firebaseConfig";
-import { getBrowserId } from "../ultis";
+import { getBrowserId, usePageVisibility } from "../ultis";
 
 const AppContext = createContext();
 
@@ -36,6 +36,8 @@ const getInitialTheme = () => {
 };
 
 export const AppProvider = ({ children }) => {
+  const isVisible = usePageVisibility();
+
   const [userState, setUserState] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needLogin, setNeedLogin] = useState(false);
@@ -133,6 +135,35 @@ export const AppProvider = ({ children }) => {
       return () => unsubscribe();
     }
   }, [userState]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const updateOnlineStatus = async (status) => {
+      if (userState && userState.user && isMounted) {
+        await updateDoc(doc(db, "users", userState.user.uid), {
+          isOnline: status,
+        });
+      }
+    };
+
+    if (isVisible) {
+      updateOnlineStatus(true);
+    } else {
+      updateOnlineStatus(false);
+    }
+
+    const handleBeforeUnload = () => {
+      updateOnlineStatus(false);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      isMounted = false;
+      updateOnlineStatus(false);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [userState, isVisible]);
 
   onMessage(messaging, (payload) => {
     console.log("🚀 ~ onMessage ~ messaging:", payload);

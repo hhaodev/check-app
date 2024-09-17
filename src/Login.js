@@ -33,6 +33,7 @@ const Login = () => {
       } catch (error) {
         if (error.message === "Firebase: Error (auth/email-already-in-use).") {
           message.error("Email đã tồn tại trong hệ thống!");
+          setLoading(false);
         }
       }
     } else if (typePage === "login") {
@@ -40,10 +41,9 @@ const Login = () => {
         await signInWithEmailAndPassword(auth, values.email, values.password);
       } catch (error) {
         message.error("Người dùng không tồn tại!");
+        setLoading(false);
       }
     }
-
-    setLoading(false);
   };
 
   const hanleWithGG = async () => {

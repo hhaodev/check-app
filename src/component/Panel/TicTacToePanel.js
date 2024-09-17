@@ -83,6 +83,12 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   }, [openModalSetting]);
 
   useEffect(() => {
+    if (!open || layoutPage === "ingame") {
+      setOpenModalSetting(false);
+    }
+  }, [open, layoutPage]);
+
+  useEffect(() => {
     setIsO(userSelectedEmail);
   }, [userSelectedEmail]);
 
@@ -116,34 +122,37 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   const getAllUsers = async () => {
     try {
       const usersCollection = collection(db, "users");
-      const usersSnapshot = await getDocs(usersCollection);
-      const allUsers = usersSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
 
-      const gamesCollection = collection(db, "game");
-      const gamesQuery = query(
-        gamesCollection,
-        where("isComplete", "==", false)
-      );
+      onSnapshot(usersCollection, (usersSnapshot) => {
+        const allUsers = usersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-      onSnapshot(gamesQuery, (gamesSnapshot) => {
-        const userIdsInGame = [];
-        gamesSnapshot.forEach((gameDoc) => {
-          const gameData = gameDoc.data();
-          if (gameData.user && Array.isArray(gameData.user)) {
-            gameData.user.forEach((user) => {
-              userIdsInGame.push(user);
-            });
-          }
-        });
-
-        const userList = allUsers.filter(
-          (user) => !userIdsInGame.some((gameUser) => gameUser.uid === user.uid)
+        const gamesCollection = collection(db, "game");
+        const gamesQuery = query(
+          gamesCollection,
+          where("isComplete", "==", false)
         );
 
-        setUsersList(userList);
+        onSnapshot(gamesQuery, (gamesSnapshot) => {
+          const userIdsInGame = [];
+          gamesSnapshot.forEach((gameDoc) => {
+            const gameData = gameDoc.data();
+            if (gameData.user && Array.isArray(gameData.user)) {
+              gameData.user.forEach((user) => {
+                userIdsInGame.push(user);
+              });
+            }
+          });
+
+          const userList = allUsers.filter(
+            (user) =>
+              !userIdsInGame.some((gameUser) => gameUser.uid === user.uid)
+          );
+
+          setUsersList(userList);
+        });
       });
     } catch (error) {
       console.log(error);
@@ -169,81 +178,73 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   };
   //end setting
 
-  //lắng nghe có đang trong game hay k
   useEffect(() => {
-    if (open) {
-      const unsubscribe = onSnapshot(
-        collection(db, "game"),
-        (querySnapshot) => {
-          setGlobalLoading(true);
-          try {
-            let hasDocuments = false;
-            const history = [];
+    const unsubscribe = onSnapshot(collection(db, "game"), (querySnapshot) => {
+      setGlobalLoading(true);
+      try {
+        let hasDocuments = false;
+        const history = [];
 
-            querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data) {
-                const isCurrentUserInArray = data.user.some(
-                  (u) => u.uid === userState.user.uid
-                );
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data) {
+            const isCurrentUserInArray = data.user.some(
+              (u) => u.uid === userState.user.uid
+            );
 
-                if (
-                  isCurrentUserInArray &&
-                  data.user.find((u) => u.uid === userState.user.uid).inGame ===
-                    true &&
-                  data.isComplete === true
-                ) {
-                  history.push({ id: doc.id, ...data });
-                }
-
-                if (
-                  isCurrentUserInArray &&
-                  data.user.find((u) => u.uid === userState.user.uid).inGame ===
-                    true &&
-                  data.isComplete === false
-                ) {
-                  hasDocuments = true;
-
-                  setGameData({ id: doc.id, ...data });
-
-                  if (data.quit) {
-                    setLayoutPage("quit");
-                  } else if (data.pending) {
-                    setLayoutPage("pending");
-                  } else {
-                    setLayoutPage("ingame");
-                  }
-                }
-              }
-            });
-
-            setHistoryGameData(history);
-
-            if (!hasDocuments) {
-              setGameData(null);
-              setLayoutPage("none");
+            if (
+              isCurrentUserInArray &&
+              data.user.find((u) => u.uid === userState.user.uid).inGame ===
+                true &&
+              data.isComplete === true
+            ) {
+              history.push({ id: doc.id, ...data });
             }
-          } catch (error) {
-            console.error("Error processing snapshot:", error);
-          } finally {
-            setGlobalLoading(false);
-          }
-        }
-      );
 
-      return () => unsubscribe();
-    }
-  }, [open]);
+            if (
+              isCurrentUserInArray &&
+              data.user.find((u) => u.uid === userState.user.uid).inGame ===
+                true &&
+              data.isComplete === false
+            ) {
+              hasDocuments = true;
+
+              setGameData({ id: doc.id, ...data });
+
+              if (data.quit) {
+                setLayoutPage("quit");
+              } else if (data.pending) {
+                setLayoutPage("pending");
+              } else {
+                setLayoutPage("ingame");
+              }
+            }
+          }
+        });
+
+        setHistoryGameData(history);
+
+        if (!hasDocuments) {
+          setGameData(null);
+          setLayoutPage("none");
+        }
+      } catch (error) {
+        console.error("Error processing snapshot:", error);
+      } finally {
+        setGlobalLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleCreateGame = async () => {
     setLoadingButton(true);
-    //check user có đang rảnh không
 
     const gamesCollection = collection(db, "game");
     const gamesQuery = query(gamesCollection, where("isComplete", "==", false));
     const gamesSnapshot = await getDocs(gamesQuery);
 
-    // Lấy tất cả các userId đang tham gia các game chưa hoàn thành
     const userIdsInGame = [];
     gamesSnapshot.forEach((gameDoc) => {
       const gameData = gameDoc.data();
@@ -527,6 +528,11 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                 onChange={(e) => setMsgInGame(e.target.value)}
                 placeholder="Nhập tin nhắn"
                 style={{ padding: 10 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSendMsgInGame();
+                  }
+                }}
               />
               <Button
                 disabled={!Boolean(msgInGame)}
@@ -806,6 +812,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
 
   return (
     <Drawer
+      zIndex={2000}
       closable={false}
       open={open}
       title="X O Game"
@@ -895,7 +902,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               gap: "20px",
             }}
           >
-            <div style={{ minWidth: "fit-content" }}>Mời người chơi: </div>
+            <div style={{ width: "100px" }}>Mời bạn: </div>
             <Select
               showSearch
               style={{ width: "100%" }}
@@ -907,14 +914,40 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                   .localeCompare((optionB?.label ?? "").toLowerCase())
               }
               value={userSelected}
-              options={usersList
-                .filter((i) => i.uid !== userState.user.uid)
-                ?.map((v) => ({
-                  value: v.uid,
-                  label: v.email,
-                }))}
               onChange={(v) => setUserSelected(v)}
-            />
+            >
+              {usersList
+                .filter((i) => i.uid !== userState.user.uid)
+                ?.map((v) => (
+                  <Select.Option key={v.uid} value={v.uid} label={v.email}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <span
+                        style={{
+                          maxWidth:
+                            "calc(375px - 40px - 60px - 80px - 50px - 20px)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {v.email}
+                      </span>
+                      {v.isOnline ? (
+                        <Tag color="green">Online</Tag>
+                      ) : (
+                        <Tag color="red">Offline</Tag>
+                      )}
+                    </div>
+                  </Select.Option>
+                ))}
+              <Select.Option></Select.Option>
+            </Select>
           </div>
           {/* chọn bên X bên O */}
           <div
@@ -929,15 +962,55 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               disabled={!userSelected}
               style={{ width: "100%" }}
               value={isX}
-              options={[
-                {
-                  value: userState.user.email,
-                  label: userState.user.email,
-                },
-                { value: userSelectedEmail, label: userSelectedEmail },
-              ]}
               onChange={(v) => handleXChange(v)}
-            />
+            >
+              <Select.Option
+                value={userState.user.email}
+                label={userState.user.email}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      maxWidth: "calc(375px - 40px - 100px - 50px)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userState.user.email}
+                  </span>
+                </div>
+              </Select.Option>
+              <Select.Option
+                value={userSelectedEmail}
+                label={userSelectedEmail}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      maxWidth: "calc(375px - 40px - 100px - 50px)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userSelectedEmail}
+                  </span>
+                </div>
+              </Select.Option>
+            </Select>
           </div>
           <div
             style={{
@@ -951,15 +1024,55 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               disabled={!userSelected}
               style={{ width: "100%" }}
               value={isO}
-              options={[
-                {
-                  value: userState.user.email,
-                  label: userState.user.email,
-                },
-                { value: userSelectedEmail, label: userSelectedEmail },
-              ]}
               onChange={(v) => handleOChange(v)}
-            />
+            >
+              <Select.Option
+                value={userState.user.email}
+                label={userState.user.email}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      maxWidth: "calc(375px - 40px - 100px - 50px)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userState.user.email}
+                  </span>
+                </div>
+              </Select.Option>
+              <Select.Option
+                value={userSelectedEmail}
+                label={userSelectedEmail}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      maxWidth: "calc(375px - 40px - 100px - 50px)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userSelectedEmail}
+                  </span>
+                </div>
+              </Select.Option>
+            </Select>
           </div>
           {/* bên đi trước */}
           <div

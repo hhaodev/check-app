@@ -57,10 +57,7 @@ const AppNormal = () => {
         open={openGamePanel}
         onClosePanel={() => setOpenGamePanel(false)}
       />
-      <ListenGame
-        clearScreen={() => setOpenGamePanel(false)}
-        onAcpGame={() => setOpenGamePanel(true)}
-      />
+      <ListenGame onAcpGame={() => setOpenGamePanel(true)} />
     </>
   );
 };

@@ -542,13 +542,7 @@ function AppStandard() {
         open={openGamePanel}
         onClosePanel={() => setOpenGamePanel(false)}
       />
-      <ListenGame
-        clearScreen={() => {
-          setOpenGamePanel(false);
-          setOpenPanel(false);
-        }}
-        onAcpGame={() => setOpenGamePanel(true)}
-      />
+      <ListenGame onAcpGame={() => setOpenGamePanel(true)} />
     </>
   );
 }

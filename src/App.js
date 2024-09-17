@@ -2,14 +2,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AppAdmin from "./AppAdmin";
+import AppNormal from "./AppNormal";
 import AppStandard from "./AppStandard";
 import LoadingPage from "./component/LoadingPage";
+import LoggedAnotherPage from "./component/LoggedAnotherPage";
 import PermissionPage from "./component/PermissionPage";
 import { useAppContext } from "./context/AppContext";
 import { auth, db } from "./firebaseConfig";
 import Login from "./Login";
-import AppNormal from "./AppNormal";
-import LoggedAnotherPage from "./component/LoggedAnotherPage";
 
 const App = () => {
   const {
@@ -41,12 +41,14 @@ const App = () => {
           const docSnap = await getDoc(userRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            const userRole = userData.role; //admin or standard
+            const userRole = userData.role;
+            const isOnline = userData.isOnline; //admin or standard
 
             setUserState((prevState) => ({
               ...prevState,
               user: user,
               role: userRole,
+              isOnline: isOnline,
             }));
             setIsAuthenticated(true);
             setNeedLogin(false);

@@ -4,7 +4,7 @@ import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { Button, Modal } from "antd";
 
-const ListenGame = ({ clearScreen, onAcpGame }) => {
+const ListenGame = ({ onAcpGame }) => {
   const { userState } = useAppContext();
 
   const [gameData, setGameData] = useState(null);
@@ -32,7 +32,6 @@ const ListenGame = ({ clearScreen, onAcpGame }) => {
 
                 setGameData({ id: doc.id, ...data });
                 setOpenModalAcpGame(true);
-                clearScreen && clearScreen();
               }
             }
           }
@@ -71,7 +70,12 @@ const ListenGame = ({ clearScreen, onAcpGame }) => {
 
   return (
     <>
-      <Modal open={openModalAcpGame} closable={false} footer={null}>
+      <Modal
+        zIndex={2001}
+        open={openModalAcpGame}
+        closable={false}
+        footer={null}
+      >
         <div
           style={{
             display: "flex",

@@ -1,5 +1,6 @@
 import {
   CarryOutOutlined,
+  CommentOutlined,
   FormOutlined,
   LoadingOutlined,
   MacCommandOutlined,
@@ -22,12 +23,13 @@ import image2 from "./assets/146defa1-583e-467a-a7d2-29f7e3dc9cb5.png";
 import image1 from "./assets/e7afd37c-b941-4942-bff0-f8b19e7cd45c.png";
 import image from "./assets/pn.png";
 import HeaderApp from "./component/Header";
+import ListenGame from "./component/ListenGame";
 import NotePanel from "./component/Panel/NotePanel";
 import TicTacToePanel from "./component/Panel/TicTacToePanel";
 import { useAppContext, useCustomTheme } from "./context/AppContext";
 import { db } from "./firebaseConfig";
 import { formatTime } from "./ultis";
-import ListenGame from "./component/ListenGame";
+import MessagePanel from "./component/Panel/MessagePanel";
 
 const styleImage = {
   width: "80%",
@@ -65,6 +67,7 @@ function AppAdmin() {
   //panel region
   const [openPanel, setOpenPanel] = useState(false);
   const [openGamePanel, setOpenGamePanel] = useState(false);
+  const [openMessagePanel, setOpenMessagePanel] = useState(false);
 
   //notes region
   const [notes, setNotes] = useState([]);
@@ -261,6 +264,17 @@ function AppAdmin() {
             backgroundColor: theme.colorBackgroundBase,
           }}
         >
+          <Button
+            onClick={() => {
+              setOpenMessagePanel(true);
+            }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 50,
+            }}
+            icon={<CommentOutlined />}
+          />
           <Button
             onClick={() => {
               setOpenGamePanel(true);
@@ -484,12 +498,10 @@ function AppAdmin() {
         open={openGamePanel}
         onClosePanel={() => setOpenGamePanel(false)}
       />
-      <ListenGame
-        clearScreen={() => {
-          setOpenGamePanel(false);
-          setOpenPanel(false);
-        }}
-        onAcpGame={() => setOpenGamePanel(true)}
+      <ListenGame onAcpGame={() => setOpenGamePanel(true)} />
+      <MessagePanel
+        open={openMessagePanel}
+        onClosePanel={() => setOpenMessagePanel(false)}
       />
     </>
   );

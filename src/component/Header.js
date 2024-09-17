@@ -2,9 +2,10 @@ import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { signOut } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore";
 import React from "react";
 import { useAppContext, useCustomTheme } from "../context/AppContext";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 const style = {
   padding: 5,
 };
@@ -42,6 +43,9 @@ const HeaderApp = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      await updateDoc(doc(db, "users", userState.user.uid), {
+        isOnline: false,
+      });
       setUserState((prevState) => ({
         ...prevState,
         user: null,
