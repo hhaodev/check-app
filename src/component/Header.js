@@ -1,5 +1,5 @@
 import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
-import { Avatar, Dropdown } from "antd";
+import { Avatar, Badge, Dropdown } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { signOut } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
@@ -79,21 +79,32 @@ const HeaderApp = () => {
           alt="logo"
         />
       </div>
-      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 10 }}>
         <span style={{ lineHeight: "20px", textAlign: "end" }}>
           Xin chào, {userState.user.email.split("@")[0]}
         </span>
         <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
-          <Avatar
+          <Badge
+            dot
             style={{
-              minWidth: 32,
-              minHeight: 32,
-              backgroundColor: "#fde3cf",
-              color: "#f56a00",
+              width: "10px",
+              height: "10px",
+              backgroundColor: "green",
+              borderRadius: "50%",
             }}
+            offset={[0, 27]}
           >
-            {userState.user.email.split("@")[0].charAt(0).toUpperCase()}
-          </Avatar>
+            <Avatar
+              style={{
+                minWidth: 32,
+                minHeight: 32,
+                backgroundColor: "#fde3cf",
+                color: "#f56a00",
+              }}
+            >
+              {userState.user.email.charAt(0).toUpperCase()}
+            </Avatar>
+          </Badge>
         </Dropdown>
       </div>
     </Header>

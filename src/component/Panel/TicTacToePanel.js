@@ -9,7 +9,6 @@ import {
   Select,
   Space,
   Spin,
-  Tag,
 } from "antd";
 import {
   addDoc,
@@ -28,6 +27,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { db } from "../../firebaseConfig";
 import { usePageVisibility } from "../../ultis";
+import UserField from "../UserField";
 
 const minSize = 5; // Kích thước nhỏ nhất
 const maxSize = 15; // Kích thước lớn nhất
@@ -440,21 +440,23 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               gap: "10px",
             }}
           >
-            <div>
-              {`Bên X: ${gameData.isX}`}{" "}
-              {gameData?.user.find((u) => u.email === gameData.isX).isOnline ? (
-                <Tag color="green">Online</Tag>
-              ) : (
-                <Tag color="red">Offline</Tag>
-              )}
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ minWidth: "fit-content" }}>Bên X:</div>
+              <UserField
+                email={gameData.isX}
+                status={
+                  gameData?.user.find((u) => u.email === gameData.isX).isOnline
+                }
+              />
             </div>
-            <div>
-              {`Bên O: ${gameData.isO}`}{" "}
-              {gameData?.user.find((u) => u.email === gameData.isO).isOnline ? (
-                <Tag color="green">Online</Tag>
-              ) : (
-                <Tag color="red">Offline</Tag>
-              )}
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ minWidth: "fit-content" }}>Bên O:</div>
+              <UserField
+                email={gameData.isO}
+                status={
+                  gameData?.user.find((u) => u.email === gameData.isO).isOnline
+                }
+              />
             </div>
             {Boolean(gameData.winner) ? (
               <div
@@ -922,27 +924,10 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                   <Select.Option key={v.uid} value={v.uid} label={v.email}>
                     <div
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
+                        maxWidth: "calc(375px - 40px - 80px - 50px - 20px)",
                       }}
                     >
-                      <span
-                        style={{
-                          maxWidth:
-                            "calc(375px - 40px - 60px - 80px - 50px - 20px)",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {v.email}
-                      </span>
-                      {v.isOnline ? (
-                        <Tag color="green">Online</Tag>
-                      ) : (
-                        <Tag color="red">Offline</Tag>
-                      )}
+                      <UserField email={v.email} status={v.isOnline} />
                     </div>
                   </Select.Option>
                 ))}
@@ -1107,6 +1092,9 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               loading={loadingButton}
               onClick={() => handleCreateGame()}
               disabled={!userSelected}
+              style={{
+                padding: "20px",
+              }}
             >
               Tạo Game
             </Button>
