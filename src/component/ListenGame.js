@@ -71,7 +71,7 @@ const ListenGame = ({ onAcpGame }) => {
   return (
     <>
       <Modal
-        zIndex={2001}
+        zIndex={2100}
         open={openModalAcpGame}
         closable={false}
         footer={null}
