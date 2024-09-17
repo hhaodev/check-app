@@ -24,11 +24,8 @@ const LoggedAnotherPage = () => {
           lineHeight: 1.5,
         }}
       >
-        <h1>Bạn đã đăng nhập ở 1 thiết bị khác</h1>
-        <p>
-          Bạn không thể truy cập trang web từ thiết bị này vì đã truy cập ở 1
-          thiết bị khác.
-        </p>
+        <h1>Bạn đã truy cập ở 1 nơi khác</h1>
+        <p>Bạn không thể truy cập trang web này vì đã truy cập ở 1 nơi khác.</p>
         <Link onClick={() => window.location.reload()}>
           Truy cập bằng thiết bị này?
         </Link>

@@ -2,12 +2,12 @@ import { Button, Form, Input, message } from "antd";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { useAppContext, useCustomTheme } from "./context/AppContext";
 import { auth, db, provider } from "./firebaseConfig";
-import { signInWithPopup } from "firebase/auth";
 
 const Login = () => {
   const theme = useCustomTheme();
@@ -48,14 +48,19 @@ const Login = () => {
 
   const hanleWithGG = async () => {
     setAppLoading(true);
-    const userCredential = await signInWithPopup(auth, provider);
-    const user = userCredential.user;
-    await setDoc(doc(db, "users", user.uid), {
-      email: user.email,
-      uid: user.uid,
-      role: "normal",
-    });
-    setAppLoading(false);
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        uid: user.uid,
+        role: "normal",
+      });
+    } catch (error) {
+      console.log("🚀 ~ hanleWithGG ~ error:", error);
+    } finally {
+      setAppLoading(false);
+    }
   };
 
   return (

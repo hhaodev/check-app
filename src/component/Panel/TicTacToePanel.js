@@ -25,7 +25,7 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useMemo, useState } from "react";
-import { useAppContext, useCustomTheme } from "../../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
 import { db } from "../../firebaseConfig";
 import { usePageVisibility } from "../../ultis";
 
@@ -385,7 +385,9 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                         key={i.id}
                         style={{
                           backgroundColor:
-                            i.winner === userState.user.email
+                            i.winner === "Hoà"
+                              ? "green"
+                              : i.winner === userState.user.email
                               ? "#28344E"
                               : "#59343B",
                           borderRadius: "8px",
@@ -394,15 +396,18 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
+                          color: "white",
                         }}
                       >
                         <div>{`Trận của ${userState.user.email} với ${
                           i?.user?.find((u) => u.uid !== userState.user.uid)
                             .email
                         }`}</div>
-                        <div style={{ minWidth: "fit-content" }}>
+                        <div style={{ minWidth: 100 }}>
                           |{" "}
-                          {i?.winner === userState.user.email
+                          {i?.winner === "Hoà"
+                            ? "Hoà"
+                            : i?.winner === userState.user.email
                             ? "Chiến thắng"
                             : "Thất bại"}
                         </div>
