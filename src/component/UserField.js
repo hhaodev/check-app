@@ -9,6 +9,7 @@ const UserField = ({ email, status }) => {
         alignItems: "center",
         gap: "10px",
         width: "100%",
+        padding: "5px 0px",
       }}
     >
       <Badge

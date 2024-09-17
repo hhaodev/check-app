@@ -440,7 +440,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
               gap: "10px",
             }}
           >
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <div style={{ minWidth: "fit-content" }}>Bên X:</div>
               <UserField
                 email={gameData.isX}
@@ -449,7 +449,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                 }
               />
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <div style={{ minWidth: "fit-content" }}>Bên O:</div>
               <UserField
                 email={gameData.isO}
