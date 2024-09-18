@@ -1,6 +1,5 @@
 import { getToken } from "firebase/messaging";
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { messaging } from "../firebaseConfig";
 
 export const formatTime = (timestamp) => {
@@ -107,8 +106,4 @@ export const filterNotes = (notes, paramsFilter) => {
 
     return true;
   });
-};
-
-export const getBrowserId = () => {
-  return uuidv4();
 };

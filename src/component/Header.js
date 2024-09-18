@@ -46,6 +46,7 @@ const HeaderApp = () => {
       await updateDoc(doc(db, "users", userState.user.uid), {
         isOnline: false,
       });
+      localStorage.removeItem("browserId");
       setUserState((prevState) => ({
         ...prevState,
         user: null,

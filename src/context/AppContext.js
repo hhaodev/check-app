@@ -18,7 +18,8 @@ import React, {
 } from "react";
 import logo from "../assets/logo.png";
 import { db, messaging } from "../firebaseConfig";
-import { getBrowserId, usePageVisibility } from "../ultis";
+import { usePageVisibility } from "../ultis";
+import { v4 as uuidv4 } from "uuid";
 
 const AppContext = createContext();
 
@@ -33,6 +34,17 @@ export const useCustomTheme = () => {
 const getInitialTheme = () => {
   const savedTheme = localStorage.getItem("theme");
   return !!savedTheme && savedTheme !== "undefined" ? savedTheme : "dark";
+};
+
+const getBrowserId = () => {
+  const browserId = localStorage.getItem("browserId");
+  if (!!browserId && browserId !== "undefined") {
+    return browserId;
+  } else {
+    const newBrowserId = uuidv4();
+    localStorage.setItem("browserId", newBrowserId);
+    return newBrowserId;
+  }
 };
 
 export const AppProvider = ({ children }) => {
@@ -60,7 +72,7 @@ export const AppProvider = ({ children }) => {
 
   const browserId = useMemo(() => {
     return getBrowserId();
-  }, []);
+  }, [localStorage.getItem("browserId")]);
 
   useEffect(() => {
     const lastActivity = localStorage.getItem("lastActivity");
