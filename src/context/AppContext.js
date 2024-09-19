@@ -36,17 +36,6 @@ const getInitialTheme = () => {
   return !!savedTheme && savedTheme !== "undefined" ? savedTheme : "dark";
 };
 
-const getBrowserId = () => {
-  const browserId = localStorage.getItem("browserId");
-  if (!!browserId && browserId !== "undefined") {
-    return browserId;
-  } else {
-    const newBrowserId = uuidv4();
-    localStorage.setItem("browserId", newBrowserId);
-    return newBrowserId;
-  }
-};
-
 export const AppProvider = ({ children }) => {
   const isVisible = usePageVisibility();
 
@@ -71,8 +60,8 @@ export const AppProvider = ({ children }) => {
   }, [appTheme]);
 
   const browserId = useMemo(() => {
-    return getBrowserId();
-  }, [localStorage.getItem("browserId")]);
+    return uuidv4();
+  }, []);
 
   useEffect(() => {
     const lastActivity = localStorage.getItem("lastActivity");
