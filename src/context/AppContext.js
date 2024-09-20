@@ -16,10 +16,9 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { v4 as uuidv4 } from "uuid";
 import logo from "../assets/logo.png";
 import { db, messaging } from "../firebaseConfig";
-import { usePageVisibility } from "../ultis";
-import { v4 as uuidv4 } from "uuid";
 
 const AppContext = createContext();
 
@@ -37,8 +36,6 @@ const getInitialTheme = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const isVisible = usePageVisibility();
-
   const [userState, setUserState] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [needLogin, setNeedLogin] = useState(false);
@@ -147,10 +144,8 @@ export const AppProvider = ({ children }) => {
       }
     };
 
-    if (isVisible) {
+    if (userState && userState.user && isMounted) {
       updateOnlineStatus(true);
-    } else {
-      updateOnlineStatus(false);
     }
 
     const handleBeforeUnload = () => {
@@ -164,7 +159,7 @@ export const AppProvider = ({ children }) => {
       updateOnlineStatus(false);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [userState, isVisible]);
+  }, [userState]);
 
   onMessage(messaging, (payload) => {
     console.log("🚀 ~ onMessage ~ messaging:", payload);
