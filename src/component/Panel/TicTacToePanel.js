@@ -679,7 +679,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   };
 
   const isBlocked = (board, line, direction) => {
-    const [a, b, c, d, e] = line;
+    const [a, b, _, d, e] = line;
     let nextIndex;
 
     if (direction === -1) {
@@ -706,7 +706,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
         board[a] === board[e]
       ) {
         const leftBlocked = isBlocked(board, lines[i], -1);
-        const rightBlocked = isBlocked(board, lines[i], 1);
+        const rightBlocked = isBlocked(board, lines[i], -1);
 
         if (!(leftBlocked && rightBlocked)) {
           return { winner: board[a], winningLine: [a, b, c, d, e] };
