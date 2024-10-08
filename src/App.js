@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import AppAdmin from "./AppAdmin";
 import AppNormal from "./AppNormal";
 import AppStandard from "./AppStandard";
-import LoadingPage from "./component/LoadingPage";
-import LoggedAnotherPage from "./component/LoggedAnotherPage";
-import PermissionPage from "./component/PermissionPage";
+import LoadingPage from "./pages/LoadingPage";
+import LoggedAnotherPage from "./pages/LoggedAnotherPage";
+import PermissionPage from "./pages/PermissionPage";
 import { useAppContext } from "./context/AppContext";
 import { auth, db } from "./firebaseConfig";
-import Login from "./Login";
+import Login from "./pages/Login";
 
 const App = () => {
   const {

@@ -1,4 +1,4 @@
-import { ConfigProvider, message, theme } from "antd";
+import { ConfigProvider, theme } from "antd";
 import {
   collection,
   doc,
@@ -8,7 +8,6 @@ import {
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
-import { onMessage } from "firebase/messaging";
 import React, {
   createContext,
   useContext,
@@ -18,7 +17,7 @@ import React, {
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 import logo from "../assets/logo.png";
-import { db, messaging } from "../firebaseConfig";
+import { db } from "../firebaseConfig";
 
 const AppContext = createContext();
 
@@ -133,44 +132,6 @@ export const AppProvider = ({ children }) => {
       return () => unsubscribe();
     }
   }, [userState]);
-
-  useEffect(() => {
-    let isMounted = true;
-    const updateOnlineStatus = async (status) => {
-      if (userState && userState.user && isMounted) {
-        await updateDoc(doc(db, "users", userState.user.uid), {
-          isOnline: status,
-        });
-      }
-    };
-
-    if (userState && userState.user && isMounted) {
-      updateOnlineStatus(true);
-    }
-
-    const handleBeforeUnload = () => {
-      updateOnlineStatus(false);
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      isMounted = false;
-      updateOnlineStatus(false);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [userState]);
-
-  onMessage(messaging, (payload) => {
-    console.log("🚀 ~ onMessage ~ messaging:", payload);
-    if (payload) {
-      message.info(
-        <>
-          <div>{payload.notification.body}</div>
-        </>
-      );
-    }
-  });
 
   return (
     <AppContext.Provider

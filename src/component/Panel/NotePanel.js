@@ -1,4 +1,4 @@
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -40,6 +40,11 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
   const [addButtonLoading, setAddButtonLoading] = useState(false);
   const [panelLoading, setPanelLoading] = useState(false);
 
+  const [searchText, setSearchText] = useState("");
+
+  const [panelType, setPanelType] = useState("addNote");
+  const [noteEditId, setNoteEditId] = useState("");
+
   const [paramsFilter, setParamsFilter] = useState({
     level: "all",
     noteTo: "all",
@@ -61,6 +66,10 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
   const filteredNote = useMemo(() => {
     return filterNotes(notes, paramsFilter);
   }, [paramsFilter, notes]);
+
+  const notedWithSearch = useMemo(() => {
+    return filteredNote.filter((note) => note.description.includes(searchText));
+  }, [searchText]);
 
   const isDefaultFilter = useMemo(() => {
     return (
@@ -87,11 +96,8 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
   }, [paramsFilterClone, paramsFilter]);
 
   useEffect(() => {
-    if (open) {
+    if (open && panelType === "addNote") {
       getOptionsAddNote();
-    } else {
-      setUsersList([]);
-      setUserSelected("");
     }
   }, [open, openAddNotePanel]);
 
@@ -287,12 +293,44 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
         createAt: Timestamp.fromDate(new Date()),
       });
       if (userSelected !== userState.user.uid) {
-        message.success("Em đã nhận được note của anh <3");
+        message.success("Người ấy đã nhận được note của bạn <3");
       } else if (userSelected === userState.user.uid) {
         message.success("Tạo note thành công!");
       }
       setLevel("normal");
       setDescriptionNote("");
+      setOpenAddNotePanel(false);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    } finally {
+      setAddButtonLoading(false);
+    }
+  };
+
+  const handleEditNote = async () => {
+    setAddButtonLoading(true);
+    if (!descriptionNote) {
+      setErrorMessage(true);
+      setAddButtonLoading(false);
+      return;
+    }
+    try {
+      const notesCollection = doc(db, "notes", noteEditId);
+
+      await updateDoc(notesCollection, {
+        description: descriptionNote,
+        level: level,
+        noteTo: {
+          email: userEmail,
+          uid: userSelected,
+        },
+        createAt: Timestamp.fromDate(new Date()),
+      });
+      message.success("Chỉnh sửa thành công!");
+      setPanelType("addNote");
+      setLevel("normal");
+      setDescriptionNote("");
+      setNoteEditId("");
       setOpenAddNotePanel(false);
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -312,7 +350,13 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
           <Button type="primary" onClick={() => setOpenFilterPanel(true)}>
             Bộ lọc
           </Button>
-          <Button type="primary" onClick={() => setOpenAddNotePanel(true)}>
+          <Button
+            type="primary"
+            onClick={() => {
+              setOpenAddNotePanel(true);
+              setPanelType("addNote");
+            }}
+          >
             Tạo note
           </Button>
           <Button onClick={onClosePanel}>X</Button>
@@ -338,8 +382,20 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
             gap: 20,
           }}
         >
-          {!isDefaultFilter && <div>{renderTagFilter()}</div>}
-          {(isDefaultFilter ? notes : filteredNote)?.map((i) => {
+          <Input
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Tìm kiếm"
+            style={{
+              padding: "5px 15px",
+            }}
+          />
+          {!isDefaultFilter && <>{renderTagFilter()}</>}
+          {(isDefaultFilter && !searchText
+            ? notes
+            : searchText
+            ? notedWithSearch
+            : filteredNote
+          )?.map((i) => {
             return (
               <Card
                 key={i.id}
@@ -372,9 +428,26 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
                     padding: 10,
                     borderRadius: 8,
                     marginBottom: 10,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
                   {i.description}
+                  {!i.done && i.owner.uid === userState.user.uid && (
+                    <Button
+                      onClick={() => {
+                        setOpenAddNotePanel(true);
+                        setPanelType("editNode");
+                        setLevel(i.level);
+                        setDescriptionNote(i.description);
+                        setUserSelected(i.noteTo.uid);
+                        setNoteEditId(i.id);
+                      }}
+                    >
+                      Sửa
+                    </Button>
+                  )}
                 </div>
                 <p style={{ fontSize: 10 }}>Tạo: {formatTime(i?.createAt)}</p>
                 {Boolean(i.doneAt) && (
@@ -383,7 +456,9 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
               </Card>
             );
           })}
-          {(notes?.length === 0 || filteredNote?.length === 0) && (
+          {(notes?.length === 0 ||
+            filteredNote?.length === 0 ||
+            (notedWithSearch?.length === 0 && searchText)) && (
             <div style={{ textAlign: "center" }}>Không có note nào!!</div>
           )}
         </div>
@@ -545,20 +620,40 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
         </div>
       </Drawer>
       <Drawer
-        title="Tạo note"
+        title={panelType === "addNote" ? "Tạo Note" : "Chỉnh sửa Note"}
         closable={false}
         onClose={() => setOpenAddNotePanel(false)}
         open={openAddNotePanel}
         extra={
           <Space>
+            {panelType === "addNote" ? (
+              <Button
+                loading={addButtonLoading}
+                type="primary"
+                onClick={() => handleAddNote()}
+              >
+                Tạo
+              </Button>
+            ) : (
+              <Button
+                loading={addButtonLoading}
+                type="primary"
+                onClick={() => handleEditNote()}
+              >
+                Lưu
+              </Button>
+            )}
             <Button
-              loading={addButtonLoading}
-              type="primary"
-              onClick={() => handleAddNote()}
+              onClick={() => {
+                setOpenAddNotePanel(false);
+                setPanelType("addNote");
+                setLevel("normal");
+                setDescriptionNote("");
+                setNoteEditId("");
+              }}
             >
-              Lưu
+              Huỷ
             </Button>
-            <Button onClick={() => setOpenAddNotePanel(false)}>Huỷ</Button>
           </Space>
         }
       >

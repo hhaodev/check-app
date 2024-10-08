@@ -26,7 +26,7 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { db } from "../../firebaseConfig";
-import { usePageVisibility } from "../../ultis";
+import { formatTime, usePageVisibility } from "../../ultis";
 import UserField from "../UserField";
 
 const minSize = 5; // Kích thước nhỏ nhất
@@ -59,6 +59,8 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   const [historyGameData, setHistoryGameData] = useState([]);
 
   const [msgInGame, setMsgInGame] = useState("");
+
+  const [countDown, setCountdown] = useState();
 
   const fontSize = useMemo(() => {
     return (
@@ -179,6 +181,25 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
   //end setting
 
   useEffect(() => {
+    if (layoutPage === "quit") {
+      let countdown = 5;
+      setCountdown(countdown);
+
+      const interval = setInterval(() => {
+        countdown -= 1;
+        setCountdown(countdown);
+
+        if (countdown <= 0) {
+          clearInterval(interval);
+          handleCancelGame();
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [layoutPage]);
+
+  useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "game"), (querySnapshot) => {
       setGlobalLoading(true);
       try {
@@ -222,7 +243,11 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
           }
         });
 
-        setHistoryGameData(history);
+        setHistoryGameData(
+          history.sort((a, b) => {
+            return b.end.seconds - a.end.seconds;
+          })
+        );
 
         if (!hasDocuments) {
           setGameData(null);
@@ -364,7 +389,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                 }}
               >
                 <div style={{ fontSize: "20px", fontWeight: 700 }}>
-                  Lịch sử đánh
+                  Lịch sử đấu
                 </div>
                 <div
                   style={{
@@ -392,25 +417,45 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                               ? "#28344E"
                               : "#59343B",
                           borderRadius: "8px",
-                          padding: "20px 8px",
+                          padding: "20px 8px 10px 8px",
                           width: "100%",
                           display: "flex",
-                          alignItems: "center",
+                          flexDirection: "column",
                           justifyContent: "center",
                           color: "white",
+                          gap: 10,
                         }}
                       >
-                        <div>{`Trận của ${userState.user.email} với ${
-                          i?.user?.find((u) => u.uid !== userState.user.uid)
-                            .email
-                        }`}</div>
-                        <div style={{ minWidth: 100 }}>
-                          |{" "}
-                          {i?.winner === "Hoà"
-                            ? "Hoà"
-                            : i?.winner === userState.user.email
-                            ? "Chiến thắng"
-                            : "Thất bại"}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            paddingBottom: "20px",
+                            borderBottom: "1px solid #ffffff",
+                          }}
+                        >
+                          <div>{`Trận của bạn với ${
+                            i?.user?.find((u) => u.uid !== userState.user.uid)
+                              .email
+                          }`}</div>
+                          <div style={{ minWidth: 100 }}>
+                            |{" "}
+                            {i?.winner === "Hoà"
+                              ? "Hoà"
+                              : i?.winner === userState.user.email
+                              ? "Chiến thắng"
+                              : "Thất bại"}
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            whiteSpace: "nowrap",
+                            display: "flex",
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          {`${formatTime(i?.end)}`}
                         </div>
                       </div>
                     );
@@ -581,6 +626,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
             <p style={{ textAlign: "center", lineHeight: 1.5 }}>{`Người chơi "${
               gameData?.user?.find((u) => u.uid !== userState?.user?.uid)?.email
             }" đã từ chối trận đấu.`}</p>
+            <p>{`Sẽ thoát sau ${countDown} giây!`}</p>
             <Button onClick={handleCancelGame}>Thoát</Button>
           </div>
         );
@@ -663,6 +709,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
         winner: result.winner === "X" ? gameData?.isX : gameData?.isO,
         winningLine: result.winningLine,
         lastCheck: "",
+        end: Timestamp.fromDate(new Date()),
       });
     } else if (newBoard.every((square) => square !== null)) {
       await updateDoc(itemDoc, {
@@ -817,7 +864,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
       zIndex={2000}
       closable={false}
       open={open}
-      title="X O Game"
+      title={layoutPage === "viewgame" ? "Lịch sử đấu" : "X O Game"}
       extra={
         <Space>
           {layoutPage === "ingame" &&
@@ -862,6 +909,7 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
       )}
       {!globalLoading && <>{renderPageGame()}</>}
       <Modal
+        zIndex={2050}
         title={<div style={{ textAlign: "center" }}>Cài đặt game</div>}
         open={openModalSetting}
         closable={false}
@@ -927,11 +975,14 @@ const TicTacToePanel = ({ open, onClosePanel }) => {
                         maxWidth: "calc(375px - 40px - 80px - 50px - 20px)",
                       }}
                     >
-                      <UserField email={v.email} status={v.isOnline} />
+                      <UserField
+                        email={v.email}
+                        status={v.isOnline}
+                        needDot={false}
+                      />
                     </div>
                   </Select.Option>
                 ))}
-              <Select.Option></Select.Option>
             </Select>
           </div>
           {/* chọn bên X bên O */}

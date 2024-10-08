@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
-import HeaderApp from "./component/Header";
-import { Button, Layout, Modal } from "antd";
-import { Content } from "antd/es/layout/layout";
-import { useAppContext, useCustomTheme } from "./context/AppContext";
-import image from "./assets/pn.png";
 import { MacCommandOutlined } from "@ant-design/icons";
-import TicTacToePanel from "./component/Panel/TicTacToePanel";
-import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "./firebaseConfig";
+import { Button, Layout } from "antd";
+import { Content } from "antd/es/layout/layout";
+import React, { useState } from "react";
+import image from "./assets/pn.png";
+import HeaderApp from "./component/Header";
 import ListenGame from "./component/ListenGame";
+import TicTacToePanel from "./component/Panel/TicTacToePanel";
+import { useCustomTheme } from "./context/AppContext";
 
 const styleImage = {
   width: "80%",

@@ -6,8 +6,9 @@ import {
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
-import { useAppContext, useCustomTheme } from "./context/AppContext";
-import { auth, db, provider } from "./firebaseConfig";
+import { useAppContext, useCustomTheme } from "../context/AppContext";
+import { auth, db, provider } from "../firebaseConfig";
+import Link from "antd/es/typography/Link";
 
 const Login = () => {
   const theme = useCustomTheme();
@@ -144,14 +145,16 @@ const Login = () => {
               gap: 20,
             }}
           >
-            <Button type="primary" htmlType="submit" loading={loading}>
+            <Button
+              style={{
+                padding: "20px 10px",
+              }}
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+            >
               {typePage === "login" ? "Đăng nhập" : "Đăng ký"}
             </Button>
-            {typePage === "register" ? (
-              <Button onClick={() => setTypePage("login")}>Huỷ đăng ký</Button>
-            ) : (
-              <Button onClick={() => setTypePage("register")}>Đăng ký</Button>
-            )}
 
             <Button
               onClick={hanleWithGG}
@@ -162,6 +165,15 @@ const Login = () => {
             >
               Đăng nhập bằng Google
             </Button>
+            {typePage === "register" ? (
+              <Link onClick={() => setTypePage("login")}>
+                Bạn đã có tài khoản? Đăng nhập
+              </Link>
+            ) : (
+              <Link onClick={() => setTypePage("register")}>
+                Bạn chưa có tài khoản? Đăng ký
+              </Link>
+            )}
           </div>
         </Form.Item>
       </Form>

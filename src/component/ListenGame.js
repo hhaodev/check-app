@@ -26,7 +26,8 @@ const ListenGame = ({ onAcpGame }) => {
               if (
                 data.user.find((u) => u.uid === userState.user.uid)?.inGame ===
                   false &&
-                data.isComplete === false
+                data.isComplete === false &&
+                data.quit === false
               ) {
                 hasDocuments = true;
 
