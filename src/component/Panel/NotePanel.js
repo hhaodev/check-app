@@ -383,11 +383,26 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
           }}
         >
           <Input
+            value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Tìm kiếm"
             style={{
+              height: "40px",
               padding: "5px 15px",
             }}
+            suffix={
+              <span
+                onClick={() => setSearchText("")}
+                style={{
+                  display: searchText ? "block" : "none",
+                  border: "1px solid #ccc",
+                  padding: "0px 10px",
+                  borderRadius: 5,
+                }}
+              >
+                X
+              </span>
+            }
           />
           {!isDefaultFilter && <>{renderTagFilter()}</>}
           {(isDefaultFilter && !searchText
