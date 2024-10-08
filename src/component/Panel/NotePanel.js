@@ -103,6 +103,7 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
 
   useEffect(() => {
     if (open) {
+      setSearchText("");
       setParamsFilter((pre) => ({
         ...pre,
         noteTo: userState.user.uid,
