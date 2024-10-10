@@ -68,7 +68,9 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
   }, [paramsFilter, notes]);
 
   const notedWithSearch = useMemo(() => {
-    return filteredNote.filter((note) => note.description.includes(searchText));
+    return filteredNote.filter((note) =>
+      note.description.includes(searchText?.trim())
+    );
   }, [searchText]);
 
   const isDefaultFilter = useMemo(() => {
@@ -340,6 +342,41 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
     }
   };
 
+  const highlightTextSearch = (text, textSearch) => {
+    if (!textSearch?.trim()) {
+      return text;
+    }
+
+    const lowerCaseText = text.toLowerCase();
+    const lowerCaseHighlight = textSearch.toLowerCase();
+    const startIndex = lowerCaseText.indexOf(lowerCaseHighlight);
+
+    if (startIndex === -1) {
+      return <span>{text}</span>;
+    }
+
+    const beforeMatch = text.slice(0, startIndex);
+    const match = text.slice(startIndex, startIndex + textSearch.length);
+    const afterMatch = text.slice(startIndex + textSearch.length);
+
+    return (
+      <span>
+        {beforeMatch}
+        <span
+          style={{
+            backgroundColor: "yellow",
+            color: "black",
+            borderRadius: 5,
+            padding: "5px 0px",
+          }}
+        >
+          {match}
+        </span>
+        {afterMatch}
+      </span>
+    );
+  };
+
   return (
     <Drawer
       title="NoteBook"
@@ -449,7 +486,7 @@ const NotePanel = ({ open, onClosePanel, notes }) => {
                     alignItems: "center",
                   }}
                 >
-                  {i.description}
+                  {highlightTextSearch(i.description, searchText)}
                   {!i.done && i.owner.uid === userState.user.uid && (
                     <Button
                       onClick={() => {

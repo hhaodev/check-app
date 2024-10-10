@@ -77,7 +77,9 @@ const Login = () => {
         gap: 20,
       }}
     >
-      <div style={{ fontSize: 30, fontWeight: 700 }}>Đăng nhập</div>
+      <div style={{ fontSize: 30, fontWeight: 700 }}>
+        {typePage === "login" ? "Đăng nhập" : "Đăng ký"}
+      </div>
       <Form layout="vertical" onFinish={onFinish} autoComplete="off">
         <Form.Item
           label="Email"

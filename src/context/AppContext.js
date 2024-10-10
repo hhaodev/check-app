@@ -45,6 +45,8 @@ export const AppProvider = ({ children }) => {
 
   const [isLoggedAnother, setIsLoggedAnother] = useState(false);
 
+  const [isSuccessSession, setIsSuccessSession] = useState(false);
+
   const toggleAppTheme = () => {
     const targetTheme = appTheme === "light" ? "dark" : "light";
     setAppTheme(targetTheme);
@@ -104,12 +106,13 @@ export const AppProvider = ({ children }) => {
           browserId: browserId,
           uid: userState.user.uid,
         });
+        setIsSuccessSession(true);
       })();
     }
   }, [userState]);
 
   useEffect(() => {
-    if (userState && userState.user) {
+    if (userState && userState.user && isSuccessSession) {
       const unsubscribe = onSnapshot(
         collection(db, "session"),
         (querySnapshot) => {
@@ -131,7 +134,7 @@ export const AppProvider = ({ children }) => {
 
       return () => unsubscribe();
     }
-  }, [userState]);
+  }, [userState, isSuccessSession]);
 
   return (
     <AppContext.Provider
