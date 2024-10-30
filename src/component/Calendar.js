@@ -1,4 +1,8 @@
-import { LoadingOutlined } from "@ant-design/icons";
+import {
+  LeftOutlined,
+  LoadingOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import { Button, Modal, Popover, Spin } from "antd";
 import { collection, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -35,6 +39,7 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
         setLoading(false);
       })();
     } else {
+      setCurrentDate(new Date());
       setCheckedDates({});
       setLoading(true);
     }
@@ -93,14 +98,14 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
           <div className="calendar">
             <div className="header-cld">
               <Button className="btn-change-cld" onClick={handlePreviousMonth}>
-                &lt;
+                <LeftOutlined />
               </Button>
               <div className="title-cld">
                 {currentDate.toLocaleString("default", { month: "long" })}{" "}
                 {year}
               </div>
               <Button className="btn-change-cld" onClick={handleNextMonth}>
-                &gt;
+                <RightOutlined />
               </Button>
             </div>
             <div className="days-grid">

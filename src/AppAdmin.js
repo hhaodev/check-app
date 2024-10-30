@@ -80,11 +80,11 @@ function AppAdmin() {
     if (!openHistoryCheck) {
       const showTooltipTimeout = setTimeout(() => {
         setOpenTooltip(true);
-      }, 1000);
+      }, 500);
 
       const hideTooltipTimeout = setTimeout(() => {
         setOpenTooltip(false);
-      }, 5000);
+      }, 4000);
 
       return () => {
         clearTimeout(showTooltipTimeout);
