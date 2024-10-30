@@ -30,6 +30,7 @@ import { useAppContext, useCustomTheme } from "./context/AppContext";
 import { db } from "./firebaseConfig";
 import { formatTime } from "./ultis";
 import MessagePanel from "./component/Panel/MessagePanel";
+import CalendarHistoryCheck from "./component/Calendar";
 
 const styleImage = {
   width: "80%",
@@ -47,6 +48,8 @@ function AppAdmin() {
   const [todayChecked, setTodayChecked] = useState(false);
   const [content, setContent] = useState("");
   const [modalType, setModalType] = useState();
+
+  const [openHistoryCheck, setOpenHistoryCheck] = useState(false);
 
   //msg region
   const [contentReply, setContentReply] = useState("");
@@ -234,12 +237,22 @@ function AppAdmin() {
                   {todayChecked ? (
                     <>
                       <div>{`hôm nay em đã uống thuốc rồi :)))`}</div>
-                      <img alt="" src={image} style={styleImage} />
+                      <img
+                        onClick={() => setOpenHistoryCheck(true)}
+                        alt=""
+                        src={image}
+                        style={styleImage}
+                      />
                     </>
                   ) : (
                     <>
                       <div>{`hôm nay em chưa uống thuốc !!!!`}</div>
-                      <img alt="" src={image2} style={styleImage} />
+                      <img
+                        onClick={() => setOpenHistoryCheck(true)}
+                        alt=""
+                        src={image2}
+                        style={styleImage}
+                      />
                     </>
                   )}
                 </>
@@ -502,6 +515,10 @@ function AppAdmin() {
       <MessagePanel
         open={openMessagePanel}
         onClosePanel={() => setOpenMessagePanel(false)}
+      />
+      <CalendarHistoryCheck
+        isOpen={openHistoryCheck}
+        onClose={() => setOpenHistoryCheck(false)}
       />
     </>
   );

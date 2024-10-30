@@ -12,6 +12,7 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  setDoc,
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
@@ -26,8 +27,9 @@ import NotePanel from "./component/Panel/NotePanel";
 import TicTacToePanel from "./component/Panel/TicTacToePanel";
 import { useAppContext, useCustomTheme } from "./context/AppContext";
 import { db } from "./firebaseConfig";
-import { formatTime, usePageVisibility } from "./ultis";
+import { formatDate, formatTime, usePageVisibility } from "./ultis";
 import ListenGame from "./component/ListenGame";
+import CalendarHistoryCheck from "./component/Calendar";
 
 const styleImage = {
   width: "80%",
@@ -49,6 +51,8 @@ function AppStandard() {
   const [openModal, setOpenModal] = useState(false);
   const [data, setData] = useState();
   const [result, setResult] = useState(false);
+
+  const [openHistoryCheck, setOpenHistoryCheck] = useState(false);
 
   //msg region
   const [contentReply, setContentReply] = useState("");
@@ -160,6 +164,15 @@ function AppStandard() {
     try {
       const itemDoc = doc(db, "check", todayDocId);
       await updateDoc(itemDoc, { checked: true });
+
+      const formattedDate = formatDate(new Date());
+      const docRefHistory = doc(db, "historyCheck", formattedDate);
+      const dataHistory = {
+        isChecked: true,
+        time: Timestamp.fromDate(new Date()),
+      };
+      await setDoc(docRefHistory, dataHistory);
+
       if (Boolean(contentReply)) {
         await addDoc(collection(db, "msg"), {
           author: userState.user.uid,
@@ -266,12 +279,22 @@ function AppStandard() {
                 {result ? (
                   <>
                     <div>{`uống òi hả, giỏi !! thưởng 1 nháy :)))`}</div>
-                    <img alt="" src={image} style={styleImage} />
+                    <img
+                      onClick={() => setOpenHistoryCheck(true)}
+                      alt=""
+                      src={image}
+                      style={styleImage}
+                    />
                   </>
                 ) : (
                   <>
                     <div>{`hôm ni em ún thuốc roàii !!`}</div>
-                    <img alt="" src={image2} style={styleImage} />
+                    <img
+                      onClick={() => setOpenHistoryCheck(true)}
+                      alt=""
+                      src={image2}
+                      style={styleImage}
+                    />
                   </>
                 )}
               </>
@@ -279,7 +302,12 @@ function AppStandard() {
             {isCheckLater && !error && (
               <>
                 <div>{`nhớ 7h uống thuốc đó nghen :))`}</div>
-                <img alt="" src={image1} style={styleImage} />
+                <img
+                  onClick={() => setOpenHistoryCheck(true)}
+                  alt=""
+                  src={image1}
+                  style={styleImage}
+                />
               </>
             )}
             {error && (
@@ -543,6 +571,10 @@ function AppStandard() {
         onClosePanel={() => setOpenGamePanel(false)}
       />
       <ListenGame onAcpGame={() => setOpenGamePanel(true)} />
+      <CalendarHistoryCheck
+        isOpen={openHistoryCheck}
+        onClose={() => setOpenHistoryCheck(false)}
+      />
     </>
   );
 }

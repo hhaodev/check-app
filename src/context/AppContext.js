@@ -18,6 +18,7 @@ import React, {
 import { v4 as uuidv4 } from "uuid";
 import logo from "../assets/logo.png";
 import { db } from "../firebaseConfig";
+import { formatDate } from "../ultis";
 
 const AppContext = createContext();
 
@@ -59,6 +60,26 @@ export const AppProvider = ({ children }) => {
 
   const browserId = useMemo(() => {
     return uuidv4();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const todayFormatted = formatDate(new Date());
+      const historyChecksCollection = collection(db, "historyCheck");
+      const snapshot = await getDocs(historyChecksCollection);
+
+      const todayExists = snapshot.docs.some(
+        (docSnapshot) => docSnapshot.id === todayFormatted
+      );
+
+      if (!todayExists) {
+        const docRefHistory = doc(db, "historyCheck", todayFormatted);
+        const dataHistory = {
+          isChecked: false,
+        };
+        await setDoc(docRefHistory, dataHistory);
+      }
+    })();
   }, []);
 
   useEffect(() => {

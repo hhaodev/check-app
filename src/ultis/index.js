@@ -2,7 +2,7 @@ import { getToken } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import { messaging } from "../firebaseConfig";
 
-export const formatTime = (timestamp) => {
+export const formatTime = (timestamp, showTimeOnly = false) => {
   const date = new Date(timestamp?.seconds * 1000);
 
   const day = date.getDate();
@@ -24,11 +24,22 @@ export const formatTime = (timestamp) => {
     month === today.getMonth() + 1 &&
     year === today.getFullYear();
 
-  if (isToday) {
-    return `Hôm nay lúc ${formattedH}:${formattedMinutes} ${ampm}`;
+  if (showTimeOnly) {
+    return `${formattedH}:${formattedMinutes} ${ampm}`;
   } else {
-    return `${day}/${month}/${year} ${formattedH}:${formattedMinutes} ${ampm}`;
+    if (isToday) {
+      return `Hôm nay lúc ${formattedH}:${formattedMinutes} ${ampm}`;
+    } else {
+      return `${day}/${month}/${year} ${formattedH}:${formattedMinutes} ${ampm}`;
+    }
   }
+};
+
+export const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export const usePageVisibility = () => {

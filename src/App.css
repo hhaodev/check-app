@@ -75,5 +75,69 @@ body {
 
 .board-row .square:last-child {
   border-right: 1px solid #000;
+}
 
+.calendar {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+}
+
+.header-cld {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 15px;
+}
+
+.day-name,
+.day {
+  text-align: center;
+  padding: 8px 0;
+  width: 100%;
+  max-width: 45px;
+}
+
+.btn-change-cld {
+  padding: 5px 10px;
+}
+
+.title-cld {
+  font-size: 22px;
+}
+
+.day {
+  width: 30px;
+  height: 30px;
+  border-radius: 20%;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day.checked {
+  background-color: #27c72d;
+  color: white;
+  font-weight: bold;
+}
+
+.day.not-check {
+  background-color: #ac2626;
+  color: white;
+  font-weight: bold;
+}
+
+.day.empty {
+  visibility: hidden;
 }
