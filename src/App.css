@@ -139,6 +139,7 @@ body {
   color: white;
 }
 
-.day.empty {
-  visibility: hidden;
+.day.faded {
+  background-color: #4b4b4b;
+  color: rgb(36, 36, 36);
 }

@@ -128,9 +128,15 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
               })}
               {Array(firstDayOfMonth.getDay())
                 .fill(null)
-                .map((_, i) => (
-                  <div key={`empty-${i}`} className="day empty" />
-                ))}
+                .map((_, i) => {
+                  const prevDate = new Date(year, month, -i);
+                  return (
+                    <div key={`prev-${i}`} className="day faded">
+                      {prevDate.getDate()}
+                    </div>
+                  );
+                })
+                .reverse()}
               {daysInMonth.map((date) => {
                 const formattedDate = formatDate(date); // yyyy-mm-dd
                 const data = checkedDates[formattedDate];
@@ -161,6 +167,16 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
                   </Popover>
                 );
               })}
+              {Array(6 - lastDayOfMonth.getDay())
+                .fill(null)
+                .map((_, i) => {
+                  const nextDate = new Date(year, month + 1, i + 1);
+                  return (
+                    <div key={`next-${i}`} className="day faded">
+                      {nextDate.getDate()}
+                    </div>
+                  );
+                })}
             </div>
           </div>
         )}
