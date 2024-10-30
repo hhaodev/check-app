@@ -50,7 +50,7 @@ function AppAdmin() {
   const [modalType, setModalType] = useState();
 
   const [openHistoryCheck, setOpenHistoryCheck] = useState(false);
-  const [openTooltip, setOpenTooltip] = useState(true);
+  const [openTooltip, setOpenTooltip] = useState(false);
 
   //msg region
   const [contentReply, setContentReply] = useState("");
@@ -78,11 +78,19 @@ function AppAdmin() {
 
   useEffect(() => {
     if (!openHistoryCheck) {
-      setOpenTooltip(true);
+      const showTooltipTimeout = setTimeout(() => {
+        setOpenTooltip(true);
+      }, 1000);
+
+      const hideTooltipTimeout = setTimeout(() => {
+        setOpenTooltip(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(showTooltipTimeout);
+        clearTimeout(hideTooltipTimeout);
+      };
     }
-    setTimeout(() => {
-      setOpenTooltip(false);
-    }, 3000);
   }, [openHistoryCheck]);
 
   useEffect(() => {

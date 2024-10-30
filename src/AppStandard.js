@@ -83,11 +83,19 @@ function AppStandard() {
 
   useEffect(() => {
     if (!openHistoryCheck) {
-      setOpenTooltip(true);
+      const showTooltipTimeout = setTimeout(() => {
+        setOpenTooltip(true);
+      }, 1000);
+
+      const hideTooltipTimeout = setTimeout(() => {
+        setOpenTooltip(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(showTooltipTimeout);
+        clearTimeout(hideTooltipTimeout);
+      };
     }
-    setTimeout(() => {
-      setOpenTooltip(false);
-    }, 3000);
   }, [openHistoryCheck]);
 
   useEffect(() => {
