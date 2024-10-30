@@ -6,7 +6,7 @@ import {
   MacCommandOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
-import { Badge, Button, Input, Layout, Modal, Spin } from "antd";
+import { Badge, Button, Input, Layout, Modal, Spin, Tooltip } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
   addDoc,
@@ -50,6 +50,7 @@ function AppAdmin() {
   const [modalType, setModalType] = useState();
 
   const [openHistoryCheck, setOpenHistoryCheck] = useState(false);
+  const [openTooltip, setOpenTooltip] = useState(true);
 
   //msg region
   const [contentReply, setContentReply] = useState("");
@@ -74,6 +75,15 @@ function AppAdmin() {
 
   //notes region
   const [notes, setNotes] = useState([]);
+
+  useEffect(() => {
+    if (!openHistoryCheck) {
+      setOpenTooltip(true);
+    }
+    setTimeout(() => {
+      setOpenTooltip(false);
+    }, 3000);
+  }, [openHistoryCheck]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
@@ -237,22 +247,38 @@ function AppAdmin() {
                   {todayChecked ? (
                     <>
                       <div>{`hôm nay em đã uống thuốc rồi :)))`}</div>
-                      <img
-                        onClick={() => setOpenHistoryCheck(true)}
-                        alt=""
-                        src={image}
-                        style={styleImage}
-                      />
+                      <Tooltip
+                        placement="bottom"
+                        title={"Bấm để xem lịch sử uống thuốc!"}
+                        arrow={true}
+                        open={openTooltip}
+                        zIndex={0}
+                      >
+                        <img
+                          onClick={() => setOpenHistoryCheck(true)}
+                          alt=""
+                          src={image}
+                          style={styleImage}
+                        />
+                      </Tooltip>
                     </>
                   ) : (
                     <>
                       <div>{`hôm nay em chưa uống thuốc !!!!`}</div>
-                      <img
-                        onClick={() => setOpenHistoryCheck(true)}
-                        alt=""
-                        src={image2}
-                        style={styleImage}
-                      />
+                      <Tooltip
+                        placement="bottom"
+                        title={"Bấm để xem lịch sử uống thuốc!"}
+                        arrow={true}
+                        open={openTooltip}
+                        zIndex={0}
+                      >
+                        <img
+                          onClick={() => setOpenHistoryCheck(true)}
+                          alt=""
+                          src={image2}
+                          style={styleImage}
+                        />
+                      </Tooltip>
                     </>
                   )}
                 </>

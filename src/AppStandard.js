@@ -4,7 +4,7 @@ import {
   MacCommandOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
-import { Badge, Button, Input, Layout, Modal, Spin } from "antd";
+import { Badge, Button, Input, Layout, Modal, Spin, Tooltip } from "antd";
 import { Content } from "antd/es/layout/layout";
 import {
   addDoc,
@@ -53,6 +53,7 @@ function AppStandard() {
   const [result, setResult] = useState(false);
 
   const [openHistoryCheck, setOpenHistoryCheck] = useState(false);
+  const [openTooltip, setOpenTooltip] = useState(true);
 
   //msg region
   const [contentReply, setContentReply] = useState("");
@@ -79,6 +80,15 @@ function AppStandard() {
 
   //notes region
   const [notes, setNotes] = useState([]);
+
+  useEffect(() => {
+    if (!openHistoryCheck) {
+      setOpenTooltip(true);
+    }
+    setTimeout(() => {
+      setOpenTooltip(false);
+    }, 3000);
+  }, [openHistoryCheck]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "check"), (querySnapshot) => {
@@ -279,22 +289,38 @@ function AppStandard() {
                 {result ? (
                   <>
                     <div>{`uống òi hả, giỏi !! thưởng 1 nháy :)))`}</div>
-                    <img
-                      onClick={() => setOpenHistoryCheck(true)}
-                      alt=""
-                      src={image}
-                      style={styleImage}
-                    />
+                    <Tooltip
+                      placement="bottom"
+                      title={"Bấm để xem lịch sử uống thuốc!"}
+                      arrow={true}
+                      open={openTooltip}
+                      zIndex={0}
+                    >
+                      <img
+                        onClick={() => setOpenHistoryCheck(true)}
+                        alt=""
+                        src={image}
+                        style={styleImage}
+                      />
+                    </Tooltip>
                   </>
                 ) : (
                   <>
                     <div>{`hôm ni em ún thuốc roàii !!`}</div>
-                    <img
-                      onClick={() => setOpenHistoryCheck(true)}
-                      alt=""
-                      src={image2}
-                      style={styleImage}
-                    />
+                    <Tooltip
+                      placement="bottom"
+                      title={"Bấm để xem lịch sử uống thuốc!"}
+                      arrow={true}
+                      open={openTooltip}
+                      zIndex={0}
+                    >
+                      <img
+                        onClick={() => setOpenHistoryCheck(true)}
+                        alt=""
+                        src={image2}
+                        style={styleImage}
+                      />
+                    </Tooltip>
                   </>
                 )}
               </>
@@ -302,12 +328,20 @@ function AppStandard() {
             {isCheckLater && !error && (
               <>
                 <div>{`nhớ 7h uống thuốc đó nghen :))`}</div>
-                <img
-                  onClick={() => setOpenHistoryCheck(true)}
-                  alt=""
-                  src={image1}
-                  style={styleImage}
-                />
+                <Tooltip
+                  placement="bottom"
+                  title={"Bấm để xem lịch sử uống thuốc!"}
+                  arrow={true}
+                  open={openTooltip}
+                  zIndex={0}
+                >
+                  <img
+                    onClick={() => setOpenHistoryCheck(true)}
+                    alt=""
+                    src={image1}
+                    style={styleImage}
+                  />
+                </Tooltip>
               </>
             )}
             {error && (

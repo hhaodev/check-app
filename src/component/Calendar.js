@@ -104,11 +104,23 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
               </Button>
             </div>
             <div className="days-grid">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <div key={day} className="day-name">
-                  {day}
-                </div>
-              ))}
+              {Array.from({ length: 7 }, (_, i) => {
+                const date = new Date(currentDate);
+                date.setDate(date.getDate() - date.getDay() + i);
+
+                return (
+                  <div
+                    key={date.toLocaleDateString("default", {
+                      weekday: "short",
+                    })}
+                    className="day-name"
+                  >
+                    {date.toLocaleDateString("default", {
+                      weekday: "short",
+                    })}
+                  </div>
+                );
+              })}
               {Array(firstDayOfMonth.getDay())
                 .fill(null)
                 .map((_, i) => (
