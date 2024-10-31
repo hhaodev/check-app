@@ -70,6 +70,12 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
     return date <= today;
   };
 
+  const isToday = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date.setHours(0, 0, 0, 0) === today.getTime();
+  };
+
   return (
     <Modal
       style={{ top: "25%" }}
@@ -138,9 +144,11 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
                 })
                 .reverse()}
               {daysInMonth.map((date) => {
+                console.log("🚀 ~ {daysInMonth.map ~ date:", date);
                 const formattedDate = formatDate(date); // yyyy-mm-dd
                 const data = checkedDates[formattedDate];
                 const pastDate = isPastDate(date);
+                const today = isToday(date);
 
                 return (
                   <Popover
@@ -160,7 +168,7 @@ const CalendarHistoryCheck = ({ isOpen, onClose }) => {
                       key={formattedDate}
                       className={`day ${
                         data?.isChecked ? "checked" : "not-check"
-                      }`}
+                      } ${today ? "today" : ""}`}
                     >
                       {date.getDate()}
                     </div>
